@@ -46,6 +46,29 @@ body{margin:0;background:var(--bg);color:var(--fg);
    the sidebar and every sticky table heading having to be told about it separately. */
 :root{--topbar:3.1rem}
 body.has-jump{--topbar:5.35rem}
+/* Compare units: the box under the bar, and picked rows. */
+.cmp{position:fixed;top:calc(var(--topbar) + .5rem);left:50%;transform:translateX(-50%);z-index:19;
+  width:min(60rem, calc(100% - 2rem));max-height:70vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--acc);border-radius:10px;box-shadow:var(--shadow);font-size:.9rem}
+.cmp[hidden]{display:none}
+.cmp-h{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;padding:.5rem .8rem;border-bottom:1px solid var(--line)}
+.cmp-h span{color:var(--dim)}
+.cmp-h button:first-of-type{margin-left:auto}
+.cmp button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:.15rem .55rem;cursor:pointer;font:inherit}
+.cmp button:hover{border-color:var(--acc)}
+.cmp.folded .cmp-scroll{display:none}
+.cmp-scroll{overflow:auto}
+.cmp table{margin:0;width:100%;border-collapse:collapse}
+.cmp th,.cmp td{padding:.3rem .7rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.cmp thead th{position:sticky;top:0;background:var(--panel);z-index:1}
+.cmp thead img{vertical-align:middle;border-radius:3px}
+.cmp tbody th{color:var(--dim);font-weight:500;white-space:nowrap}
+.cmp td.cmp-best{color:var(--acc);font-weight:700}
+.cmp .cmp-x{padding:0 .4rem;margin-left:.3rem}
+tr[data-unit],td[data-unit]{cursor:pointer}
+tr.cmp-on>td,td.cmp-on{background:var(--acc-soft)}
+.cmp-btn{display:inline-block;margin:0 0 .8rem;background:var(--panel);color:var(--fg);border:1px solid var(--acc);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font:inherit}
+.cmp-hint{color:var(--dim);font-size:.85rem;margin:.2rem 0 .4rem}
 .top{position:sticky;top:0;z-index:20;background:var(--tyrian);border-bottom:1px solid var(--tyrian-deep);
   box-shadow:var(--shadow)}
 .top .bar{display:flex;gap:1rem;align-items:center;padding:.55rem 1rem}
