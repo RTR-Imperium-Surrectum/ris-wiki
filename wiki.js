@@ -317,6 +317,11 @@
         var first = tb.firstChild;
         tb.insertBefore(capRow(rows.length, t.heads.length), first);
         rows.forEach(function(r){ tb.insertBefore(r, first); });
+        // A clear break between the compared rows and the table they came from.
+        var sep = document.createElement("tr");
+        sep.className = "cmp-pin cmp-sep";
+        sep.innerHTML = '<td colspan="' + t.heads.length + '">All units</td>';
+        tb.insertBefore(sep, first);
       });
       return;
     }
