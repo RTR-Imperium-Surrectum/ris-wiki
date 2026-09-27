@@ -61,6 +61,9 @@ td.cmp-best{color:var(--acc);font-weight:700}
 .cmp-clear{padding:.05rem .55rem;margin-left:.6rem}
 .cmp-x:hover,.cmp-clear:hover{border-color:var(--acc)}
 .cmp-panel{overflow-x:auto;margin:0 0 1rem;border:1px solid var(--line);border-radius:8px}
+tr.cmp-hold>td{padding:.5rem;background:var(--bg)}
+tr.cmp-hold .cmp-panel{margin:0}
+.cmp-panel td,.cmp-panel th{white-space:nowrap}
 .cmp-panel table{margin:0}
 .cmp-panel thead th{position:static;top:auto}
 .cmp-btn{display:inline-block;margin:0 0 .8rem;background:var(--panel);color:var(--fg);border:1px solid var(--acc);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font:inherit}

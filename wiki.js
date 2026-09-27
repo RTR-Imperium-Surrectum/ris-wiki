@@ -225,7 +225,9 @@
     for (var i = 0; i < links.length; i++){ var m = UNIT.exec(links[i].getAttribute("href")); if (m) return m[2]; }
     return null;
   };
-  var statTables = [], any = false;
+  // plainTables: unit tables with no stat columns (a faction's recruit tables); lastTbl: the
+  // table the reader last picked from, where the comparison is shown.
+  var statTables = [], plainTables = [], lastTbl = null, any = false;
   main.querySelectorAll("table").forEach(function(tbl){
     if (tbl.closest(".cmp-panel")) return;
     var tb = tbl.tBodies[0];
@@ -246,6 +248,7 @@
     if (!perRow || !head) return;
     var heads = [].slice.call(head.cells).map(function(th){ return th.textContent.trim().toLowerCase(); });
     if (heads.some(function(h){ return COLS[h] && COLS[h][1]; })) statTables.push({ tbl: tbl, heads: heads });
+    else plainTables.push(tbl);
   });
   if (!any && !UNIT.test(location.pathname)) return;
 
@@ -325,7 +328,9 @@
       });
       return;
     }
-    // No stat table here: the same rows in a small table at the top of the page.
+    // No stat table here: the same rows in a small table of their own, as the first row of the
+    // unit table the reader is picking from (a faction's recruit table), so it shows where they
+    // click; on a page with no unit table (a unit's own page), under the title.
     var heads = PANEL.map(function(c){ return c[1] === "card" ? "" : c[1]; });
     var rows = p.filter(function(s){ return data[s]; }).map(function(s){ return pinRow(s, heads, null); });
     markBest(rows, heads);
@@ -335,6 +340,22 @@
     var tb = panel.querySelector("tbody");
     tb.appendChild(capRow(rows.length, PANEL.length));
     rows.forEach(function(r){ tb.appendChild(r); });
+    var host = plainTables.indexOf(lastTbl) >= 0 ? lastTbl : plainTables[0];
+    var hb = host && host.tBodies[0];
+    if (hb) {
+      var cols = host.tHead && host.tHead.rows[0] ? host.tHead.rows[0].cells.length : (hb.rows[0] ? hb.rows[0].cells.length : 1);
+      var hold = document.createElement("tr");
+      hold.className = "cmp-pin cmp-hold";
+      var td = document.createElement("td");
+      td.colSpan = cols; td.appendChild(panel); hold.appendChild(td);
+      var sep = document.createElement("tr");
+      sep.className = "cmp-pin cmp-sep";
+      sep.innerHTML = '<td colspan="' + cols + '">All units</td>';
+      hb.insertBefore(sep, hb.firstChild);
+      hb.insertBefore(hold, sep);
+      panel = null;   // removed with its row
+      return;
+    }
     var top = btn || main.querySelector("h1");
     if (top) top.insertAdjacentElement("afterend", panel); else main.insertBefore(panel, main.firstChild);
   }
@@ -344,6 +365,7 @@
     if (t.classList && t.classList.contains("cmp-clear")) { save([]); render(); return; }
     var el = t.closest && t.closest("[data-unit]");
     if (!el || el.closest(".cmp-pin") || el.classList.contains("cmp-btn") || t.closest("a, button, input, select, summary")) return;
+    lastTbl = el.closest("table");
     toggle(el.getAttribute("data-unit"));
   });
   // A unit's own page: a button under the title.
