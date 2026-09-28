@@ -176,6 +176,19 @@
   }
 })();
 
+// ── a link to a closed fold opens it ─────────────────────────────────────────
+// The AOR page folds each area (closed, so it scrolls fast); its index table links to the folds
+// by id, and a jump to a closed one would land on a single line.
+(function(){
+  function openTarget(){
+    var id = decodeURIComponent(location.hash.slice(1));
+    var el = id && document.getElementById(id);
+    if (el && el.tagName === "DETAILS" && !el.open) { el.open = true; el.scrollIntoView(); }
+  }
+  window.addEventListener("hashchange", openTarget);
+  openTarget();
+})();
+
 // ── compare units ────────────────────────────────────────────────────────────
 // Asked for 2026-09-26; reworked the same night on the team's word ("at the top as an entry
 // instead of a popup"). Click a unit's row (anywhere but a link) to pick it. Picked units are
