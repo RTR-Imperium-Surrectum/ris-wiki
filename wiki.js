@@ -329,7 +329,10 @@
     if (!p.length) return;
     if (!data) { load().then(render); return; }
     if (statTables.length) {
-      statTables.forEach(function(t){
+      // One table per page: the one the reader is picking from, else the first. Pinned into every
+      // stat table, a settlement page showed the comparison twice (2026-09-29).
+      var host = statTables.filter(function(t){ return t.tbl === lastTbl; })[0] || statTables[0];
+      [host].forEach(function(t){
         var tb = t.tbl.tBodies[0], rows = [];
         p.forEach(function(slug){
           var own = tb.querySelector('tr[data-unit="' + slug + '"]');
