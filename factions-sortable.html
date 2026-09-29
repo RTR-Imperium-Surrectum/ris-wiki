@@ -2,13 +2,13 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Factions, sortable — RTR: Imperium Surrectum</title>
-<link rel="stylesheet" href="wiki.css?v=212c57353a">
+<link rel="stylesheet" href="wiki.css?v=58372095aa">
 <script>window.RIS_BASE=""</script></head><body>
 <div class="top">
   <div class="bar">
   <a class="brand" href="README.html"><img src="art/ris-mark.png" alt="">RTR: Imperium Surrectum</a>
   <form action="search.html" method="get" role="search">
-    <input name="q" type="search" placeholder="Search 4,480 pages: a faction, region or unit…" autocomplete="off">
+    <input name="q" type="search" placeholder="Search 4,661 pages: a faction, region or unit…" autocomplete="off">
   </form>
   <div class="right">
     <button id="theme" type="button" title="Switch theme">theme</button>
@@ -19,7 +19,7 @@
   
 </div>
 <div class="wrap">
-  <nav class="side"><h4>Start here</h4><a href="README.html">Wiki index</a><a href="guides.html">Game guides</a><a href="community-guides.html">Community guides</a><a href="factions.html">All factions</a><a href="remastered.html">Remastered factions</a><a href="regions.html">Regions and settlements</a><a href="world-map.html">World map</a><a href="units.html">All units</a><a href="buildings.html">All buildings</a><a href="trade-goods.html">Trade goods</a><a href="cultures.html">Cultures</a><a href="religions.html">Beliefs</a><a href="traits.html">Character traits</a><a href="ancillaries.html">Retinue</a><a href="reforms.html">Reforms</a><a href="revolts.html">Revolts</a><a href="sizes.html">Settlement sizes</a><a href="diaries.html">Developer diaries</a><a href="community-videos.html">Community videos</a><h4>Overviews</h4><a href="factions-overview.html">Factions vs vanilla</a><a href="map-and-regions.html">The map</a><a href="units-overview.html">Roster vs vanilla</a><h4>Region tags</h4><a href="tags/terrain.html">Terrain</a><a href="tags/climate.html">Climate</a><a href="tags/irrigation.html">Water sources</a><a href="tags/ports.html">Ports</a><a href="aor.html">Areas of recruitment</a><a href="tags/recruitment-zones.html">Recruitment zones</a><a href="tags/specialty-recruitment.html">Specialty recruitment</a><a href="tags/recruitment-other.html">Other recruitment tags</a><a href="tags/cultural-homeland.html">Cultural homelands</a><a href="tags/hazards-and-river-trade.html">River trade</a><a href="tags/fertility.html">Fertility</a><h4>Sortable views</h4><a href="units-sortable.html">Unit roster</a><a href="regions-sortable.html">Regions</a><a href="factions-sortable.html" class="on">Factions</a></nav>
+  <nav class="side"><h4>Start here</h4><a href="README.html">Wiki index</a><a href="guides.html">Game guides</a><a href="community-guides.html">Community guides</a><a href="factions.html">All factions</a><a href="remastered.html">Remastered factions</a><a href="regions.html">Regions and settlements</a><a href="world-map.html">World map</a><a href="units.html">All units</a><a href="mercenaries.html">Mercenary pools</a><a href="buildings.html">All buildings</a><a href="trade-goods.html">Trade goods</a><a href="cultures.html">Cultures</a><a href="religions.html">Beliefs</a><a href="traits.html">Character traits</a><a href="ancillaries.html">Retinue</a><a href="reforms.html">Reforms</a><a href="revolts.html">Revolts</a><a href="sizes.html">Settlement sizes</a><a href="diaries.html">Developer diaries</a><a href="community-videos.html">Community videos</a><a href="changelog.html">Changelog</a><h4>Overviews</h4><a href="factions-overview.html">Factions vs vanilla</a><a href="map-and-regions.html">The map</a><a href="units-overview.html">Roster vs vanilla</a><h4>Region tags</h4><a href="tags/terrain.html">Terrain</a><a href="tags/climate.html">Climate</a><a href="tags/irrigation.html">Water sources</a><a href="tags/ports.html">Ports</a><a href="aor.html">Areas of recruitment</a><a href="tags/recruitment-zones.html">Recruitment zones</a><a href="tags/specialty-recruitment.html">Specialty recruitment</a><a href="tags/recruitment-other.html">Other recruitment tags</a><a href="tags/cultural-homeland.html">Cultural homelands</a><a href="tags/hazards-and-river-trade.html">River trade</a><a href="tags/fertility.html">Fertility</a><h4>Sortable views</h4><a href="units-sortable.html">Unit roster</a><a href="regions-sortable.html">Regions</a><a href="factions-sortable.html" class="on">Factions</a></nav>
   <main><div class="crumb"><a href="README.html">RIS wiki</a></div><h1 id="factions-sortable">Factions, sortable</h1>
 <p><a href="README.html">← wiki index</a> · <a href="factions.html">all factions</a></p>
 <p>Every playable faction. Units is the faction's own roster: what it can raise from its own buildings anywhere it holds a settlement. It excludes regional units, which are gated on holding the right province rather than on being anyone in particular: every faction has between 424 and 443 of those.</p>
@@ -30,6 +30,13 @@
 .sbar input:focus{outline:2px solid var(--acc-soft);border-color:var(--acc)}
 .sbar .stog{display:flex;gap:.35rem;align-items:center;color:var(--dim);font-size:.9rem;cursor:pointer}
 .sbar .stog input{min-width:0}
+.scols{position:relative}
+.scols summary{cursor:pointer;color:var(--dim);font-size:.9rem;list-style:none;border:1px solid var(--line);border-radius:8px;padding:.35rem .65rem}
+.scols summary::-webkit-details-marker{display:none}
+.scols[open] summary{border-color:var(--acc);color:var(--fg)}
+.scols div{position:absolute;z-index:5;margin-top:.3rem;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem;display:grid;gap:.3rem;min-width:11rem;box-shadow:var(--shadow)}
+.scols label{display:flex;gap:.4rem;align-items:center;font-size:.9rem;cursor:pointer;white-space:nowrap}
+.scols input{min-width:0}
 #count{color:var(--dim);font-size:.84rem;font-variant-numeric:tabular-nums}
 .sview th{cursor:pointer;user-select:none}
 .sview th:hover,.sview th.sorted{color:var(--acc)}
@@ -53,6 +60,21 @@ const ROWS = [[{"text":"Galatians","href":"factions/galatians.html","sym":"symbo
 const tbody = document.querySelector(".sview tbody");
 const q = document.getElementById("q");
 const countEl = document.getElementById("count");
+const SHOW = {};
+const SHOW_KEY = "ris-cols-" + location.pathname.split("/").pop();
+try { (JSON.parse(localStorage.getItem(SHOW_KEY)) || []).forEach((i) => { SHOW[i] = true; }); } catch (e) {}
+document.querySelectorAll(".scols input").forEach((cb) => {
+  const i = +cb.dataset.opt;
+  cb.checked = !!SHOW[i];
+  const th = document.querySelector('.sview th[data-i="' + i + '"]');
+  if (th) th.hidden = !SHOW[i];
+  cb.addEventListener("change", () => {
+    SHOW[i] = cb.checked;
+    if (th) th.hidden = !cb.checked;
+    try { localStorage.setItem(SHOW_KEY, JSON.stringify(Object.keys(SHOW).filter((k) => SHOW[k]))); } catch (e) {}
+    render();
+  });
+});
 let sortCol = COLS[0].thumb ? 1 : 0, sortDesc = false;
 
 function cell(v, col) {
@@ -101,7 +123,7 @@ function render() {
   });
   // Built as one string: appending ~1,700 rows node by node is visibly slow on a phone.
   tbody.innerHTML = rows.map((r) =>
-    "<tr>" + r.map((v, i) => COLS[i].hidden ? "" : "<td" + (COLS[i].num ? ' class="right"' : COLS[i].thumb ? ' class="thumb"' : "") + ">" +
+    "<tr>" + r.map((v, i) => COLS[i].hidden || (COLS[i].optional && !SHOW[i]) ? "" : "<td" + (COLS[i].num ? ' class="right"' : COLS[i].thumb ? ' class="thumb"' : "") + ">" +
       cell(v, COLS[i]) + "</td>").join("") + "</tr>").join("");
   if (countEl) countEl.textContent = rows.length.toLocaleString("en-US") + " of " + ROWS.length.toLocaleString("en-US") +
     (needle ? " matching" : " rows");
@@ -129,5 +151,5 @@ render();
 var m={};try{Object.defineProperty(window,"localStorage",{value:{getItem:function(k){return k in m?m[k]:null;},
 setItem:function(k,v){m[k]=String(v);},removeItem:function(k){delete m[k];}},configurable:true});}catch(e2){}}})();
 </script>
-<script src="wiki.js?v=771ac50336"></script>
+<script src="wiki.js?v=ea7a75a51e"></script>
 </body></html>

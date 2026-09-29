@@ -74,6 +74,19 @@ tr.cmp-hold .cmp-panel{margin:0}
 /* A long list spread across the width (the guides' faction list). */
 .cols ul{columns:15rem;column-gap:2.2rem;margin:0}
 .cols li{break-inside:avoid;margin:0 0 .35rem}
+/* Hover previews of unit and faction links (lib/hoverPreview.js). */
+.hov{position:fixed;z-index:40;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow);padding:.55rem .7rem;font-size:.85rem;max-width:17rem;line-height:1.35}
+.hov[hidden]{display:none}
+.hov-h{display:flex;gap:.55rem;align-items:center;margin-bottom:.35rem}
+.hov-h img{border-radius:4px;flex:none}
+.hov-h b{display:block;color:var(--acc);font-size:.95rem}
+.hov-h small{color:var(--dim)}
+.hov table{margin:0;border-collapse:collapse;width:100%}
+.hov th,.hov td{padding:.08rem .3rem;border:0;background:none}
+.hov th{color:var(--dim);font-weight:500;text-align:left;text-transform:none;letter-spacing:0;font-size:.85rem}
+.hov td{text-align:right;font-variant-numeric:tabular-nums}
+.hov p{margin:.35rem 0 0;color:var(--dim);font-size:.8rem}
 .top{position:sticky;top:0;z-index:20;background:var(--tyrian);border-bottom:1px solid var(--tyrian-deep);
   box-shadow:var(--shadow)}
 .top .bar{display:flex;gap:1rem;align-items:center;padding:.55rem 1rem}

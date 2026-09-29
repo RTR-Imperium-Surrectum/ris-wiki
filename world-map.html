@@ -2,13 +2,13 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The world map — RTR: Imperium Surrectum</title>
-<link rel="stylesheet" href="wiki.css?v=212c57353a">
+<link rel="stylesheet" href="wiki.css?v=58372095aa">
 <script>window.RIS_BASE=""</script></head><body>
 <div class="top">
   <div class="bar">
   <a class="brand" href="README.html"><img src="art/ris-mark.png" alt="">RTR: Imperium Surrectum</a>
   <form action="search.html" method="get" role="search">
-    <input name="q" type="search" placeholder="Search 4,480 pages: a faction, region or unit…" autocomplete="off">
+    <input name="q" type="search" placeholder="Search 4,661 pages: a faction, region or unit…" autocomplete="off">
   </form>
   <div class="right">
     <button id="theme" type="button" title="Switch theme">theme</button>
@@ -19,7 +19,7 @@
   
 </div>
 <div class="wrap">
-  <nav class="side"><h4>Start here</h4><a href="README.html">Wiki index</a><a href="guides.html">Game guides</a><a href="community-guides.html">Community guides</a><a href="factions.html">All factions</a><a href="remastered.html">Remastered factions</a><a href="regions.html">Regions and settlements</a><a href="world-map.html" class="on">World map</a><a href="units.html">All units</a><a href="buildings.html">All buildings</a><a href="trade-goods.html">Trade goods</a><a href="cultures.html">Cultures</a><a href="religions.html">Beliefs</a><a href="traits.html">Character traits</a><a href="ancillaries.html">Retinue</a><a href="reforms.html">Reforms</a><a href="revolts.html">Revolts</a><a href="sizes.html">Settlement sizes</a><a href="diaries.html">Developer diaries</a><a href="community-videos.html">Community videos</a><h4>Overviews</h4><a href="factions-overview.html">Factions vs vanilla</a><a href="map-and-regions.html">The map</a><a href="units-overview.html">Roster vs vanilla</a><h4>Region tags</h4><a href="tags/terrain.html">Terrain</a><a href="tags/climate.html">Climate</a><a href="tags/irrigation.html">Water sources</a><a href="tags/ports.html">Ports</a><a href="aor.html">Areas of recruitment</a><a href="tags/recruitment-zones.html">Recruitment zones</a><a href="tags/specialty-recruitment.html">Specialty recruitment</a><a href="tags/recruitment-other.html">Other recruitment tags</a><a href="tags/cultural-homeland.html">Cultural homelands</a><a href="tags/hazards-and-river-trade.html">River trade</a><a href="tags/fertility.html">Fertility</a><h4>Sortable views</h4><a href="units-sortable.html">Unit roster</a><a href="regions-sortable.html">Regions</a><a href="factions-sortable.html">Factions</a></nav>
+  <nav class="side"><h4>Start here</h4><a href="README.html">Wiki index</a><a href="guides.html">Game guides</a><a href="community-guides.html">Community guides</a><a href="factions.html">All factions</a><a href="remastered.html">Remastered factions</a><a href="regions.html">Regions and settlements</a><a href="world-map.html" class="on">World map</a><a href="units.html">All units</a><a href="mercenaries.html">Mercenary pools</a><a href="buildings.html">All buildings</a><a href="trade-goods.html">Trade goods</a><a href="cultures.html">Cultures</a><a href="religions.html">Beliefs</a><a href="traits.html">Character traits</a><a href="ancillaries.html">Retinue</a><a href="reforms.html">Reforms</a><a href="revolts.html">Revolts</a><a href="sizes.html">Settlement sizes</a><a href="diaries.html">Developer diaries</a><a href="community-videos.html">Community videos</a><a href="changelog.html">Changelog</a><h4>Overviews</h4><a href="factions-overview.html">Factions vs vanilla</a><a href="map-and-regions.html">The map</a><a href="units-overview.html">Roster vs vanilla</a><h4>Region tags</h4><a href="tags/terrain.html">Terrain</a><a href="tags/climate.html">Climate</a><a href="tags/irrigation.html">Water sources</a><a href="tags/ports.html">Ports</a><a href="aor.html">Areas of recruitment</a><a href="tags/recruitment-zones.html">Recruitment zones</a><a href="tags/specialty-recruitment.html">Specialty recruitment</a><a href="tags/recruitment-other.html">Other recruitment tags</a><a href="tags/cultural-homeland.html">Cultural homelands</a><a href="tags/hazards-and-river-trade.html">River trade</a><a href="tags/fertility.html">Fertility</a><h4>Sortable views</h4><a href="units-sortable.html">Unit roster</a><a href="regions-sortable.html">Regions</a><a href="factions-sortable.html">Factions</a></nav>
   <main><div class="crumb"><a href="README.html">RIS wiki</a></div><h1 id="the-world-map">The world map</h1>
 <p><a href="README.html">← wiki index</a> · <a href="regions.html">all regions and settlements</a></p>
 <p>The campaign map at the start of the Unified Romans campaign.</p><!-- The world map viewer, inserted into world-map.html by gen-ris-wiki-html.js (__DATA__ is
@@ -56,7 +56,7 @@
 .wm-leg small{color:var(--dim)}
 .wm-leg .wm-note{color:var(--dim);align-self:center}
 </style>
-<div class="wm-bar"><button type="button" id="wm-plus" title="Zoom in">+</button><button type="button" id="wm-minus" title="Zoom out">−</button><button type="button" id="wm-fit">Whole map</button><label>Colour by <select id="wm-mode"><option value="">nothing</option><option value="faction">Faction</option></select></label><label><input type="checkbox" id="wm-names" checked> Settlement names</label><input type="search" id="wm-find" placeholder="Find a settlement or region…" list="wm-list" autocomplete="off"><datalist id="wm-list"></datalist></div>
+<div class="wm-bar"><button type="button" id="wm-plus" title="Zoom in">+</button><button type="button" id="wm-minus" title="Zoom out">−</button><button type="button" id="wm-fit">Whole map</button><label>Colour by <select id="wm-mode"><option value="">nothing</option><option value="faction">Faction</option></select></label><label>only where <select id="wm-and"><option value="">anything</option></select><select id="wm-and-v" hidden></select></label><label><input type="checkbox" id="wm-names" checked> Settlement names</label><input type="search" id="wm-find" placeholder="Find a settlement or region…" list="wm-list" autocomplete="off"><datalist id="wm-list"></datalist></div>
 <div class="wm-leg" id="wm-leg" hidden></div>
 <div class="wm" id="wm"><div class="wm-in" id="wm-in"><img src="world-map/world.webp" alt="The campaign map" width="4080" height="2800"><canvas id="wm-cv" width="1020" height="700"></canvas></div><div class="wm-tip" id="wm-tip"></div></div>
 <img id="wm-ids" src="world-map/ids.png" alt="" hidden>
@@ -130,7 +130,8 @@ function colours(m){
   return c;
 }
 function colourOf(d){
-  if (!mode) return null;
+  if (!passes(d)) return null;
+  if (!mode) return andOn() ? HI : null;
   if (mode === "faction") return d.c;
   var v = d.m && d.m[mode.k];
   if (!v || !v.length) return null;
@@ -140,8 +141,8 @@ function colourOf(d){
   return cols[v[0]];
 }
 function paint(){
-  box.classList.toggle("owners", !!mode); box.classList.toggle("iso", iso >= 0);
-  if (!ids || !mode) return;
+  box.classList.toggle("owners", !!mode || andOn()); box.classList.toggle("iso", iso >= 0 || (!mode && andOn()));
+  if (!ids || (!mode && !andOn())) return;
   var cv = document.getElementById("wm-cv"), g = cv.getContext("2d"), o = g.createImageData(MW, MH);
   var cache = DATA.map(function(d){ return d ? colourOf(d) : null; });
   for (var i = 0; i < MW * MH; i++) {
@@ -173,6 +174,19 @@ function setMode(k){
   legend(); paint();
 }
 sel.onchange = function(){ setMode(this.value); };
+// "Only where": a second property and one of its values; only regions that have it are painted
+// (asked for 2026-09-29: e.g. hills that have iron).
+var andSel = document.getElementById("wm-and"), andVal = document.getElementById("wm-and-v"), andMode = null, andV = -1;
+MODES.forEach(function(m){ var op = document.createElement("option"); op.value = m.k; op.textContent = m.label; andSel.appendChild(op); });
+function andOn(){ return !!andMode && andV >= 0; }
+function passes(d){ if (!andOn()) return true; var v = d.m && d.m[andMode.k]; return !!v && v.indexOf(andV) >= 0; }
+andSel.onchange = function(){
+  andMode = MODES.find(function(m){ return m.k === andSel.value; }) || null; andV = -1;
+  andVal.hidden = !andMode;
+  andVal.innerHTML = andMode ? '<option value="">choose…</option>' + andMode.order.map(function(v){ return '<option value="' + v + '">' + esc(andMode.vals[v][0]) + '</option>'; }).join("") : "";
+  paint();
+};
+andVal.onchange = function(){ andV = andVal.value === "" ? -1 : +andVal.value; paint(); };
 try { var saved = localStorage.getItem("ris-wm-mode"); if (saved && [].some.call(sel.options, function(o){ return o.value === saved; })) { sel.value = saved; setMode(saved); } } catch (e) {}
 function regionAt(cx, cy){
   if (!ids) return null;
@@ -255,5 +269,5 @@ fit();
 var m={};try{Object.defineProperty(window,"localStorage",{value:{getItem:function(k){return k in m?m[k]:null;},
 setItem:function(k,v){m[k]=String(v);},removeItem:function(k){delete m[k];}},configurable:true});}catch(e2){}}})();
 </script>
-<script src="wiki.js?v=771ac50336"></script>
+<script src="wiki.js?v=ea7a75a51e"></script>
 </body></html>
