@@ -94,6 +94,13 @@ tr.cmp-hold .cmp-panel{margin:0}
 .ptabs span{border-color:var(--line);background:var(--panel);color:var(--fg);font-weight:600}
 .ptabs a{color:var(--dim)}
 .ptabs a:hover{color:var(--acc)}
+/* Campaign buttons on pages that differ between campaigns (build-ris-wiki-site.js). */
+.ctabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:.1rem 0 1rem}
+.ctabs a,.ctabs span{padding:.28rem .8rem;border:1px solid var(--line);border-radius:999px;font-size:.88rem;text-decoration:none;background:var(--panel)}
+.ctabs a{color:var(--fg)}
+.ctabs a:hover{border-color:var(--acc);color:var(--acc)}
+.ctabs span{border-color:var(--acc);color:var(--acc);font-weight:600;background:var(--acc-soft)}
+.ctabs span.off{border-color:var(--line);color:var(--dim);font-weight:400;background:transparent;opacity:.55;cursor:default}
 /* Tables that should line up with each other: always the full width. */
 .wide .tw,.wide table{width:100%}
 .hov .hov-map{display:block;width:100%;max-height:9rem;object-fit:cover;border-radius:6px;margin:.2rem 0 .3rem}

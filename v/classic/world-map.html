@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The world map — RTR: Imperium Surrectum</title>
+<link rel="stylesheet" href="../../wiki.css?v=871b1034a5">
+<script>window.RIS_BASE="../../"</script></head><body>
+<div class="top">
+  <div class="bar">
+  <a class="brand" href="../../README.html"><img src="../../art/ris-mark.png" alt="">RTR: Imperium Surrectum</a>
+  <form action="../../search.html" method="get" role="search">
+    <input name="q" type="search" placeholder="Search 4,657 pages: a faction, region or unit…" autocomplete="off">
+  </form>
+  <div class="right">
+    <button id="theme" type="button" title="Switch theme">theme</button>
+    <a href="https://github.com/Tarnholm/ris-wiki/wiki" title="Add a team note to this page on the wiki (team members only)">edit</a>
+    <a href="https://github.com/Tarnholm/ris-wiki/wiki/_new" title="Write a new page on the wiki (team members only); it appears under Team pages">new page</a>
+  </div>
+  </div>
+  
+</div>
+<div class="wrap">
+  <nav class="side"><h4>Start here</h4><a href="../../README.html">Wiki index</a><a href="../../guides.html">Game guides</a><a href="../../community-guides.html">Community guides</a><a href="../../factions.html">Factions</a><a href="../../regions.html">Regions and settlements</a><a href="../../world-map.html">World map</a><a href="../../units.html">All units</a><a href="../../mercenaries.html">Mercenary pools</a><a href="../../buildings.html">Buildings</a><a href="../../trade-goods.html">Trade goods</a><a href="../../cultures.html">Cultures</a><a href="../../religions.html">Beliefs</a><a href="../../traits.html">Traits</a><a href="../../ancillaries.html">Retinue</a><a href="../../reforms.html">Reforms</a><a href="../../revolts.html">Revolts</a><a href="../../sizes.html">Settlement sizes</a><a href="../../diaries.html">Developer diaries</a><a href="../../community-videos.html">Community videos</a><a href="../../changelog.html">Changelog</a><h4>Region tags</h4><a href="../../tags/terrain.html">Terrain</a><a href="../../tags/climate.html">Climate</a><a href="../../tags/irrigation.html">Water sources</a><a href="../../tags/ports.html">Ports</a><a href="../../aor.html">Areas of recruitment</a><a href="../../tags/recruitment-zones.html">Recruitment zones</a><a href="../../tags/specialty-recruitment.html">Specialty recruitment</a><a href="../../tags/recruitment-other.html">Other recruitment tags</a><a href="../../tags/cultural-homeland.html">Cultural homelands</a><a href="../../tags/hazards-and-river-trade.html">River trade</a><a href="../../tags/fertility.html">Fertility</a><h4>Sortable views</h4><a href="../../units-sortable.html">Unit roster</a><a href="../../regions-sortable.html">Regions</a><a href="../../factions-sortable.html">Factions</a></nav>
+  <main><div class="crumb"><a href="../../README.html">RIS wiki</a></div><h1 id="the-world-map">The world map</h1>
+<div class="ctabs"><a data-c="main" href="../../world-map.html">Main campaign</a><a data-c="4r" href="../4r/world-map.html">Four Romans</a><a data-c="light" href="../light/world-map.html">RIS Light</a><span data-c="classic">RIS Classic</span></div>
+<p><a href="../../README.html">← wiki index</a> · <a href="regions.html">all regions and settlements</a></p>
+<p>The campaign map at the start of the RIS Classic campaign.</p><!-- The world map viewer, inserted into world-map.html by gen-ris-wiki-html.js (__DATA__ is
+     replaced with the region list). Pan by dragging, zoom with the wheel, the buttons or a pinch;
+     hover names the region, click opens its page; names show once zoomed in. -->
+<style>
+.wm-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.3rem 0 .6rem}
+.wm-bar button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:.3rem .7rem;cursor:pointer;font:inherit}
+.wm-bar button:hover{border-color:var(--acc)}
+.wm-bar label{display:flex;gap:.35rem;align-items:center;color:var(--dim);font-size:.9rem;cursor:pointer}
+.wm-bar input[type=search]{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:.3rem .6rem;font:inherit;min-width:14rem}
+.wm{position:relative;height:74vh;min-height:420px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#1c3f66;cursor:grab;touch-action:none;user-select:none}
+.wm.drag{cursor:grabbing}
+.wm-in{position:absolute;left:0;top:0;transform-origin:0 0;width:1536px;height:936px;will-change:transform;--lf:12px}
+.wm-in img,.wm-in canvas{position:absolute;left:0;top:0;width:1536px;height:936px;max-width:none;pointer-events:none}
+.wm-in canvas{opacity:.55;display:none}
+.wm.owners .wm-in canvas{display:block}
+.wm.iso .wm-in canvas{opacity:.75}
+.wm-leg .wm-note{flex-basis:100%}
+.wm-lab{position:absolute;transform:translate(6px,-50%);white-space:nowrap;color:#faf4e4;font-weight:600;font-size:var(--lf);
+ text-shadow:0 0 3px #1c160f;pointer-events:none;display:none}
+.wm.names:not(.nonames) .wm-lab.on{display:block}
+.wm-tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+ padding:.45rem .65rem;font-size:.88rem;line-height:1.45;box-shadow:var(--shadow);display:none;z-index:3;max-width:18rem}
+.wm-tip img{width:20px;height:20px;vertical-align:middle;margin-right:.3rem}
+.wm-tip b{color:var(--acc)}
+.wm-bar select{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:.3rem .5rem;font:inherit}
+.wm-leg{display:flex;flex-wrap:wrap;gap:.3rem .45rem;margin:0 0 .6rem;font-size:.85rem;max-height:9.5rem;overflow:auto}
+.wm-leg button{display:flex;align-items:center;gap:.35rem;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:.15rem .5rem;cursor:pointer;font:inherit}
+.wm-leg button:hover{border-color:var(--acc)}
+.wm-leg button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.wm-leg button.off{opacity:.45}
+.wm-leg i{display:inline-block;width:.9rem;height:.9rem;border-radius:3px;flex:none}
+.wm-leg small{color:var(--dim)}
+.wm-leg .wm-note{color:var(--dim);align-self:center}
+</style>
+<div class="wm-bar"><button type="button" id="wm-plus" title="Zoom in">+</button><button type="button" id="wm-minus" title="Zoom out">−</button><button type="button" id="wm-fit">Whole map</button><label>Colour by <select id="wm-mode"><option value="">nothing</option><option value="faction">Faction</option></select></label><label>only where <select id="wm-and"><option value="">anything</option></select><select id="wm-and-v" hidden></select></label><label><input type="checkbox" id="wm-names" checked> Settlement names</label><input type="search" id="wm-find" placeholder="Find a settlement or region…" list="wm-list" autocomplete="off"><datalist id="wm-list"></datalist></div>
+<div class="wm-leg" id="wm-leg" hidden></div>
+<div class="wm" id="wm"><div class="wm-in" id="wm-in"><img src="world-map/world.webp" alt="The campaign map" width="1536" height="936"><canvas id="wm-cv" width="384" height="234"></canvas></div><div class="wm-tip" id="wm-tip"></div></div>
+<img id="wm-ids" src="world-map/ids.png" alt="" hidden>
+<script>
+(function(){
+var DATA = [{"n":"Achaia","href":"regions/Achaia.html","s":"Aigion","cap":true,"o":"Achaean League","sym":"../../symbols/achaea.png","c":[86,78,82],"x":136,"y":125,"m":{"culture":[0]}},{"n":"Aeduia","href":"regions/Aeduia.html","s":"Cabillonum","cap":true,"o":"Aedui","sym":"../../symbols/aedui.png","c":[79,113,72],"x":65,"y":77,"m":{"culture":[1]}},{"n":"Aitolia","href":"regions/Aitolia.html","s":"Thermon","cap":true,"o":"Aetolian League","sym":"../../symbols/aetolia.png","c":[142,137,89],"x":134,"y":123,"m":{"culture":[0]}},{"n":"Allobrogia","href":"regions/Allobrogia.html","s":"Vienna","cap":true,"o":"Allobroges","sym":"../../symbols/allobroges.png","c":[150,150,150],"x":68,"y":85,"m":{"culture":[1]}},{"n":"Apamene","href":"regions/Apamene.html","s":"Apameia-Syria","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":203,"y":127,"m":{"culture":[2]}},{"n":"Apulia","href":"regions/Apulia.html","s":"Arpi","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":108,"y":108,"m":{"culture":[3]}},{"n":"Arabike Aigyptos","href":"regions/Arabike_Aigyptos.html","s":"Myos Hormos","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":205,"y":182,"m":{"culture":[2]}},{"n":"Arachosia","href":"regions/Arachosia.html","s":"Alexandreia-Arachosia","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":341,"y":114,"m":{"culture":[2]}},{"n":"Ardiaea","href":"regions/Ardiaea.html","s":"Rhizon","cap":true,"o":"Ardiaei","sym":"../../symbols/ardiaei.png","c":[1,1,7],"x":119,"y":104,"m":{"culture":[4]}},{"n":"Arecomicia","href":"regions/Arecomicia.html","s":"Nemausus","cap":false,"o":"Volcae","sym":"../../symbols/volcae.png","c":[69,74,60],"x":64,"y":92,"m":{"culture":[1]}},{"n":"Arevacia","href":"regions/Arevacia.html","s":"Numantia","cap":true,"o":"Arevaci","sym":"../../symbols/arevaci.png","c":[117,139,150],"x":35,"y":98,"m":{"culture":[5]}},{"n":"Ariana","href":"regions/Ariana.html","s":"Alexandreia-Ariane","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":319,"y":100,"m":{"culture":[2]}},{"n":"Arvernia","href":"regions/Arvernia.html","s":"Nemetum","cap":true,"o":"Arverni","sym":"../../symbols/arverni.png","c":[23,8,7],"x":59,"y":83,"m":{"culture":[1]}},{"n":"Assyria","href":"regions/Assyria.html","s":"Arbela","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":236,"y":116,"m":{"culture":[6]}},{"n":"Atropatene","href":"regions/Atropatene.html","s":"Gazaca","cap":true,"o":"Atropatene","sym":"../../symbols/atropatene.png","c":[60,84,75],"x":236,"y":102,"m":{"culture":[7]}},{"n":"Attica","href":"regions/Attica.html","s":"Athens","cap":true,"o":"Athens","sym":"../../symbols/athens.png","c":[150,150,150],"x":144,"y":126,"m":{"culture":[0]}},{"n":"Auzakitis","href":"regions/Auzakitis.html","s":"Auzakia","cap":true,"o":"Saka","sym":"../../symbols/saka.png","c":[48,23,31],"x":355,"y":17,"m":{"culture":[8]}},{"n":"Auzica","href":"regions/Auzica.html","s":"Auzia","cap":false,"o":"Masaesyli","sym":"../../symbols/masaesyli.png","c":[59,37,61],"x":58,"y":137,"m":{"culture":[9]}},{"n":"Ayrarat","href":"regions/Ayrarat.html","s":"Armavir","cap":true,"o":"Armenia","sym":"../../symbols/armenia.png","c":[60,18,25],"x":228,"y":90,"m":{"culture":[6]}},{"n":"Babylonia","href":"regions/Babylonia.html","s":"Babylon","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":238,"y":131,"m":{"culture":[7]}},{"n":"Baetica","href":"regions/Baetica.html","s":"Gades","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":11,"y":121,"m":{"culture":[10]}},{"n":"Baktria","href":"regions/Baktria.html","s":"Baktra Zariaspa","cap":true,"o":"Bactria","sym":"../../symbols/bactria.png","c":[11,10,40],"x":327,"y":85,"m":{"culture":[7]}},{"n":"Baleares","href":"regions/Baleares.html","s":"Ebusus","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":53,"y":115,"m":{"culture":[10]}},{"n":"Belgica","href":"regions/Belgica.html","s":"Samarobriva","cap":true,"o":"Belgae","sym":"../../symbols/belgae.png","c":[74,43,79],"x":60,"y":60,"m":{"culture":[1]}},{"n":"Bithynia","href":"regions/Bithynia.html","s":"Nikomedia","cap":true,"o":"Bithynia","sym":"../../symbols/bithynia.png","c":[112,84,84],"x":167,"y":105,"m":{"culture":[11]}},{"n":"Boihaemum","href":"regions/Boihaemum.html","s":"Eburodunum","cap":true,"o":"Boii","sym":"../../symbols/boii.png","c":[35,14,50],"x":112,"y":67,"m":{"culture":[1]}},{"n":"Boiotia","href":"regions/Boiotia.html","s":"Orchomenos","cap":true,"o":"Boeotian League","sym":"../../symbols/boeotia.png","c":[22,38,24],"x":141,"y":122,"m":{"culture":[0]}},{"n":"Bruttium","href":"regions/Bruttium.html","s":"Consentia","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":110,"y":118,"m":{"culture":[3]}},{"n":"Byzacena","href":"regions/Byzacena.html","s":"Hadrumetum","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":85,"y":139,"m":{"culture":[10]}},{"n":"Campania","href":"regions/Campania.html","s":"Capua","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":101,"y":110,"m":{"culture":[3]}},{"n":"Carmania","href":"regions/Carmania.html","s":"Alexandreia-Karmania","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":311,"y":139,"m":{"culture":[2]}},{"n":"Chaonia","href":"regions/Chaonia.html","s":"Phoinike","cap":false,"o":"Epirus","sym":"../../symbols/epirus.png","c":[78,81,72],"x":126,"y":114,"m":{"culture":[12]}},{"n":"Charakene","href":"regions/Charakene.html","s":"Charax","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":257,"y":140,"m":{"culture":[2]}},{"n":"Chattia","href":"regions/Chattia.html","s":"Luppia","cap":true,"o":"Chatti","sym":"../../symbols/chatti.png","c":[73,121,107],"x":92,"y":53,"m":{"culture":[13]}},{"n":"Cimbria","href":"regions/Cimbria.html","s":"Cimbrium","cap":true,"o":"Cimbri","sym":"../../symbols/cimbri.png","c":[84,54,39],"x":89,"y":24,"m":{"culture":[13]}},{"n":"Cimmerian Bosporos","href":"regions/Cimmerian_Bosporos.html","s":"Pantikapaion","cap":true,"o":"Bosporan Kingdom","sym":"../../symbols/bosporan.png","c":[39,33,39],"x":184,"y":75,"m":{"culture":[12]}},{"n":"Commagene","href":"regions/Commagene.html","s":"Nymphaios","cap":false,"o":"Armenia","sym":"../../symbols/armenia.png","c":[60,18,25],"x":211,"y":113,"m":{"culture":[6]}},{"n":"Corduene","href":"regions/Corduene.html","s":"Sareisa","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":229,"y":109,"m":{"culture":[6]}},{"n":"Corsica","href":"regions/Corsica.html","s":"Aleria","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":82,"y":103,"m":{"culture":[10]}},{"n":"Cyprus","href":"regions/Cyprus.html","s":"Paphos","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":185,"y":135,"m":{"culture":[0]}},{"n":"Drangiana","href":"regions/Drangiana.html","s":"Prophthasia","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":325,"y":109,"m":{"culture":[7]}},{"n":"Eastern Baktria","href":"regions/Eastern_Baktria.html","s":"Antiocheia-Oxos","cap":false,"o":"Bactria","sym":"../../symbols/bactria.png","c":[11,10,40],"x":348,"y":80,"m":{"culture":[2]}},{"n":"Edetania","href":"regions/Edetania.html","s":"Arse","cap":true,"o":"Edeta","sym":"../../symbols/edeta.png","c":[148,131,88],"x":41,"y":111,"m":{"culture":[14]}},{"n":"Edonis","href":"regions/Edonis.html","s":"Amphipolis","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":143,"y":109,"m":{"culture":[0]}},{"n":"Elymia","href":"regions/Elymia.html","s":"Panormus","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":98,"y":126,"m":{"culture":[10]}},{"n":"Epeiros","href":"regions/Epeiros.html","s":"Ambrakia","cap":true,"o":"Epirus","sym":"../../symbols/epirus.png","c":[78,81,72],"x":129,"y":117,"m":{"culture":[12]}},{"n":"Epi Theron","href":"regions/Epi_Theron.html","s":"Ptolemais-Theron","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":218,"y":198,"m":{"culture":[2]}},{"n":"Epicratia","href":"regions/Epicratia.html","s":"Lilybaeum","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":94,"y":129,"m":{"culture":[10]}},{"n":"Etruria","href":"regions/Etruria.html","s":"Arretium","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":92,"y":97,"m":{"culture":[3]}},{"n":"Euboia","href":"regions/Euboia.html","s":"Chalkis","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":146,"y":123,"m":{"culture":[0]}},{"n":"Euonymitaia","href":"regions/Euonymitaia.html","s":"Mikra Primis","cap":false,"o":"Kush","sym":"../../symbols/kush.png","c":[44,60,41],"x":181,"y":200,"m":{"culture":[15]}},{"n":"Galatia","href":"regions/Galatia.html","s":"Ankyra","cap":true,"o":"Galatians","sym":"../../symbols/galatians.png","c":[129,137,87],"x":179,"y":108,"m":{"culture":[1]}},{"n":"Gallia Cispadana","href":"regions/Gallia_Cispadana.html","s":"Bononia","cap":false,"o":"Boii","sym":"../../symbols/boii.png","c":[35,14,50],"x":91,"y":92,"m":{"culture":[1]}},{"n":"Gallia Transalpina","href":"regions/Gallia_Transalpina.html","s":"Massalia","cap":true,"o":"Massalia","sym":"../../symbols/massalia.png","c":[40,48,87],"x":68,"y":97,"m":{"culture":[0]}},{"n":"Gallia Transpadana","href":"regions/Gallia_Transpadana.html","s":"Mediolanum","cap":true,"o":"Insubres","sym":"../../symbols/insubres.png","c":[135,150,150],"x":83,"y":86,"m":{"culture":[1]}},{"n":"Gandara","href":"regions/Gandara.html","s":"Taxila","cap":true,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":370,"y":88,"m":{"culture":[16]}},{"n":"Gedrosia","href":"regions/Gedrosia.html","s":"Pura","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":323,"y":144,"m":{"culture":[7]}},{"n":"Getaia","href":"regions/Getaia.html","s":"Dourostoron","cap":true,"o":"Getae","sym":"../../symbols/getae.png","c":[76,65,55],"x":151,"y":90,"m":{"culture":[17]}},{"n":"Hesperos Aigyptos","href":"regions/Hesperos_Aigyptos.html","s":"Paraitonion","cap":false,"o":"Cyrene","sym":"../../symbols/cyrene.png","c":[150,143,129],"x":164,"y":159,"m":{"culture":[2]}},{"n":"Hyrcania","href":"regions/Hyrcania.html","s":"Zadracarta","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":272,"y":97,"m":{"culture":[7]}},{"n":"Indus","href":"regions/Indus.html","s":"Alexandreia-Indike","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":367,"y":116,"m":{"culture":[2]}},{"n":"Ionia","href":"regions/Ionia.html","s":"Ephesos","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":156,"y":126,"m":{"culture":[0]}},{"n":"Judaea","href":"regions/Judaea.html","s":"Jerusalem","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":201,"y":146,"m":{"culture":[18]}},{"n":"Kappadokia","href":"regions/Kappadokia.html","s":"Mazaka","cap":true,"o":"Cappadocia","sym":"../../symbols/cappadocia.png","c":[150,139,125],"x":192,"y":112,"m":{"culture":[7]}},{"n":"Karia","href":"regions/Karia.html","s":"Halikarnassos","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":157,"y":129,"m":{"culture":[0]}},{"n":"Kataonia","href":"regions/Kataonia.html","s":"Melitene","cap":false,"o":"Cappadocia","sym":"../../symbols/cappadocia.png","c":[150,139,125],"x":203,"y":108,"m":{"culture":[7]}},{"n":"Kathaia","href":"regions/Kathaia.html","s":"Sangala","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":376,"y":95,"m":{"culture":[16]}},{"n":"Kilikia","href":"regions/Kilikia.html","s":"Tarsos","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":190,"y":122,"m":{"culture":[7]}},{"n":"Koile Syria","href":"regions/Koile_Syria.html","s":"Damascus","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":206,"y":135,"m":{"culture":[18]}},{"n":"Korinthia","href":"regions/Korinthia.html","s":"Corinth","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":140,"y":125,"m":{"culture":[0]}},{"n":"Kush","href":"regions/Kush.html","s":"Meroe","cap":true,"o":"Kush","sym":"../../symbols/kush.png","c":[44,60,41],"x":200,"y":217,"m":{"culture":[15]}},{"n":"Kyrenaike","href":"regions/Kyrenaike.html","s":"Kyrene","cap":true,"o":"Cyrene","sym":"../../symbols/cyrene.png","c":[150,143,129],"x":139,"y":154,"m":{"culture":[2]}},{"n":"Lakonia","href":"regions/Lakonia.html","s":"Sparta","cap":true,"o":"Sparta","sym":"../../symbols/sparta.png","c":[75,44,36],"x":139,"y":131,"m":{"culture":[0]}},{"n":"Latium","href":"regions/Latium.html","s":"Rome","cap":true,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":95,"y":106,"m":{"culture":[3]}},{"n":"Lemannus Inferior","href":"regions/Lemannus_Inferior.html","s":"Genava","cap":false,"o":"Allobroges","sym":"../../symbols/allobroges.png","c":[150,150,150],"x":72,"y":80,"m":{"culture":[1]}},{"n":"Lesbos","href":"regions/Lesbos.html","s":"Mytilene","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":154,"y":120,"m":{"culture":[0]}},{"n":"Lower Aigyptos","href":"regions/Lower_Aigyptos.html","s":"Memphis","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":183,"y":164,"m":{"culture":[9]}},{"n":"Lower Thebais","href":"regions/Lower_Thebais.html","s":"Ptolemais","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":186,"y":177,"m":{"culture":[2]}},{"n":"Lucania","href":"regions/Lucania.html","s":"Paestum","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":105,"y":115,"m":{"culture":[3]}},{"n":"Lugia","href":"regions/Lugia.html","s":"Leucaristus","cap":true,"o":"Lugii","sym":"../../symbols/lugii.png","c":[52,53,61],"x":114,"y":51,"m":{"culture":[13]}},{"n":"Lusitania","href":"regions/Lusitania.html","s":"Oxthraca","cap":true,"o":"Lusitanians","sym":"../../symbols/lusitani.png","c":[87,97,84],"x":11,"y":102,"m":{"culture":[5]}},{"n":"Lydia","href":"regions/Lydia.html","s":"Sardis","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":160,"y":121,"m":{"culture":[2]}},{"n":"Lykaonia","href":"regions/Lykaonia.html","s":"Ikonion","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":178,"y":118,"m":{"culture":[7]}},{"n":"Lykia","href":"regions/Lykia.html","s":"Patara","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":169,"y":130,"m":{"culture":[0]}},{"n":"Macedon","href":"regions/Macedon.html","s":"Pella","cap":true,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":136,"y":111,"m":{"culture":[12]}},{"n":"Malaka","href":"regions/Malaka.html","s":"Malaca","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":19,"y":124,"m":{"culture":[10]}},{"n":"Margiana","href":"regions/Margiana.html","s":"Antiocheia-Margiane","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":308,"y":79,"m":{"culture":[2]}},{"n":"Marmarike","href":"regions/Marmarike.html","s":"Alexandria","cap":true,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":175,"y":159,"m":{"culture":[2]}},{"n":"Mauretania Herpeditania","href":"regions/Mauretania_Herpeditania.html","s":"Siga","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":31,"y":135,"m":{"culture":[10]}},{"n":"Mauretania Tingitana","href":"regions/Mauretania_Tingitana.html","s":"Tingi","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":12,"y":127,"m":{"culture":[10]}},{"n":"Media","href":"regions/Media.html","s":"Ekbatana","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":261,"y":113,"m":{"culture":[7]}},{"n":"Mesopotamia","href":"regions/Mesopotamia.html","s":"Seleukeia","cap":true,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":240,"y":126,"m":{"culture":[2]}},{"n":"Messapia","href":"regions/Messapia.html","s":"Tarentum","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":115,"y":114,"m":{"culture":[0]}},{"n":"Mygdonia","href":"regions/Mygdonia.html","s":"Thessalonike","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":139,"y":111,"m":{"culture":[12]}},{"n":"Mygdonia Syria","href":"regions/Mygdonia_Syria.html","s":"Antiocheia-Mygdonia","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":224,"y":116,"m":{"culture":[2]}},{"n":"Mysia","href":"regions/Mysia.html","s":"Pergamon","cap":true,"o":"Pergamon","sym":"../../symbols/pergamon.png","c":[16,25,50],"x":158,"y":116,"m":{"culture":[12]}},{"n":"Nabataea","href":"regions/Nabataea.html","s":"Petra","cap":true,"o":"Nabataea","sym":"../../symbols/nabataea.png","c":[141,150,129],"x":204,"y":161,"m":{"culture":[18]}},{"n":"Nile Delta","href":"regions/Nile_Delta.html","s":"Naukratis","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":181,"y":159,"m":{"culture":[0]}},{"n":"Nisaia","href":"regions/Nisaia.html","s":"Nisa","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":288,"y":76,"m":{"culture":[2]}},{"n":"Nubia","href":"regions/Nubia.html","s":"Napata","cap":false,"o":"Kush","sym":"../../symbols/kush.png","c":[44,60,41],"x":189,"y":211,"m":{"culture":[15]}},{"n":"Numidia Aurasia","href":"regions/Numidia_Aurasia.html","s":"Theveste","cap":true,"o":"Massylii","sym":"../../symbols/massylii.png","c":[98,101,109],"x":71,"y":142,"m":{"culture":[9]}},{"n":"Numidia Masaesylia","href":"regions/Numidia_Masaesylia.html","s":"Iol","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":49,"y":130,"m":{"culture":[10]}},{"n":"Numidia Massylia","href":"regions/Numidia_Massylia.html","s":"Cirta","cap":true,"o":"Masaesyli","sym":"../../symbols/masaesyli.png","c":[59,37,61],"x":68,"y":136,"m":{"culture":[9]}},{"n":"Numidia Muxsi","href":"regions/Numidia_Muxsi.html","s":"Hippo","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":73,"y":133,"m":{"culture":[10]}},{"n":"Odrysia","href":"regions/Odrysia.html","s":"Orestia","cap":true,"o":"Odrysian Kingdom","sym":"../../symbols/odrysians.png","c":[128,150,150],"x":151,"y":103,"m":{"culture":[11]}},{"n":"Ombites Nomos","href":"regions/Ombites_Nomos.html","s":"Elephantine","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":189,"y":190,"m":{"culture":[9]}},{"n":"Orestis","href":"regions/Orestis.html","s":"Argos Orestikon","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":131,"y":113,"m":{"culture":[0]}},{"n":"Osrhoene","href":"regions/Osrhoene.html","s":"Edessa","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":212,"y":118,"m":{"culture":[6]}},{"n":"Oxyrhynchites Nomos","href":"regions/Oxyrhynchites_Nomos.html","s":"Oxyrhynchos","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":182,"y":172,"m":{"culture":[9]}},{"n":"Pamphylia","href":"regions/Pamphylia.html","s":"Side","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":178,"y":126,"m":{"culture":[0]}},{"n":"Paraitakene","href":"regions/Paraitakene.html","s":"Gabai","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":275,"y":120,"m":{"culture":[7]}},{"n":"Parapotamia","href":"regions/Parapotamia.html","s":"Doura-Europos","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":228,"y":129,"m":{"culture":[2]}},{"n":"Parnia","href":"regions/Parnia.html","s":"Parnike Nekropolis","cap":true,"o":"Parni","sym":"../../symbols/parni.png","c":[104,99,117],"x":274,"y":76,"m":{"culture":[7]}},{"n":"Paropamisadai","href":"regions/Paropamisadai.html","s":"Kophen","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":350,"y":87,"m":{"culture":[7]}},{"n":"Parthia","href":"regions/Parthia.html","s":"Hekatompylos","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":281,"y":103,"m":{"culture":[7]}},{"n":"Patalene","href":"regions/Patalene.html","s":"Patala","cap":false,"o":"Maurya Empire","sym":"../../symbols/mauryan.png","c":[150,127,85],"x":361,"y":137,"m":{"culture":[16]}},{"n":"Pelusiaka","href":"regions/Pelusiaka.html","s":"Pelusion","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":189,"y":156,"m":{"culture":[2]}},{"n":"Persia","href":"regions/Persia.html","s":"Istakhr","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":288,"y":134,"m":{"culture":[7]}},{"n":"Phoenicia","href":"regions/Phoenicia.html","s":"Sidon","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":199,"y":136,"m":{"culture":[10]}},{"n":"Phrygia","href":"regions/Phrygia.html","s":"Apameia-Kelainai","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":168,"y":120,"m":{"culture":[2]}},{"n":"Pisidia","href":"regions/Pisidia.html","s":"Sagalassos","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":173,"y":122,"m":{"culture":[7]}},{"n":"Pontos","href":"regions/Pontos.html","s":"Amaseia","cap":true,"o":"Pontus","sym":"../../symbols/pontus.png","c":[48,73,80],"x":190,"y":102,"m":{"culture":[7]}},{"n":"Rabat Xaman","href":"regions/Rabat_Xaman.html","s":"Philadelpheia","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":206,"y":146,"m":{"culture":[2]}},{"n":"Rhagiane","href":"regions/Rhagiane.html","s":"Rhagai","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":266,"y":106,"m":{"culture":[7]}},{"n":"Rhodos","href":"regions/Rhodos.html","s":"Rhodes","cap":true,"o":"Rhodes","sym":"../../symbols/rhodes.png","c":[133,112,112],"x":161,"y":132,"m":{"culture":[0]}},{"n":"Sabaea","href":"regions/Sabaea.html","s":"Ma'rib","cap":true,"o":"Saba","sym":"../../symbols/saba.png","c":[93,74,53],"x":268,"y":213,"m":{"culture":[18]}},{"n":"Sabaike Aithiopia","href":"regions/Sabaike_Aithiopia.html","s":"Sabai","cap":false,"o":"Saba","sym":"../../symbols/saba.png","c":[93,74,53],"x":245,"y":229,"m":{"culture":[18]}},{"n":"Samnium","href":"regions/Samnium.html","s":"Maleventum","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":104,"y":109,"m":{"culture":[3]}},{"n":"Sardinia","href":"regions/Sardinia.html","s":"Caralis","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":80,"y":120,"m":{"culture":[10]}},{"n":"Scordiscia","href":"regions/Scordiscia.html","s":"Singidunum","cap":true,"o":"Scordisci","sym":"../../symbols/scordisci.png","c":[113,129,150],"x":127,"y":89,"m":{"culture":[1]}},{"n":"Sinai","href":"regions/Sinai.html","s":"Gaza","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":197,"y":151,"m":{"culture":[18]}},{"n":"Sindica","href":"regions/Sindica.html","s":"Phanagoreia","cap":false,"o":"Bosporan Kingdom","sym":"../../symbols/bosporan.png","c":[39,33,39],"x":186,"y":74,"m":{"culture":[12]}},{"n":"Sintike","href":"regions/Sintike.html","s":"Herakleia-Sintike","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":138,"y":106,"m":{"culture":[0]}},{"n":"Siracenia","href":"regions/Siracenia.html","s":"Siracena","cap":true,"o":"Siraces","sym":"../../symbols/siraces.png","c":[130,102,77],"x":204,"y":69,"m":{"culture":[8]}},{"n":"Sogdiana","href":"regions/Sogdiana.html","s":"Marakanda","cap":false,"o":"Bactria","sym":"../../symbols/bactria.png","c":[11,10,40],"x":317,"y":67,"m":{"culture":[7]}},{"n":"Sogdiana Jaxartica","href":"regions/Sogdiana_Jaxartica.html","s":"Antiocheia-Skythia","cap":false,"o":"Bactria","sym":"../../symbols/bactria.png","c":[11,10,40],"x":330,"y":64,"m":{"culture":[2]}},{"n":"Sophene","href":"regions/Sophene.html","s":"Carcathiocerta","cap":false,"o":"Armenia","sym":"../../symbols/armenia.png","c":[60,18,25],"x":220,"y":106,"m":{"culture":[6]}},{"n":"Suebia","href":"regions/Suebia.html","s":"Susudata","cap":true,"o":"Semnones","sym":"../../symbols/suebi.png","c":[44,26,30],"x":102,"y":48,"m":{"culture":[13]}},{"n":"Sumer","href":"regions/Sumer.html","s":"Uruk","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":247,"y":136,"m":{"culture":[6]}},{"n":"Susiane","href":"regions/Susiane.html","s":"Susa","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":262,"y":127,"m":{"culture":[7]}},{"n":"Syria","href":"regions/Syria.html","s":"Antioch","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":199,"y":123,"m":{"culture":[2]}},{"n":"Takapes","href":"regions/Takapes.html","s":"Tacape","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":83,"y":151,"m":{"culture":[10]}},{"n":"Tectosagia","href":"regions/Tectosagia.html","s":"Tolosa","cap":false,"o":"Volcae","sym":"../../symbols/volcae.png","c":[69,74,60],"x":53,"y":92,"m":{"culture":[1]}},{"n":"Terra Incognita","href":"regions/Terra_Incognita.html","s":"Moscaflacopolis","cap":true,"o":"Free Peoples","sym":"../../symbols/slave.png","c":[122,119,112],"x":33,"y":227,"m":{"culture":[9]}},{"n":"Thebais","href":"regions/Thebais.html","s":"Thebes","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":187,"y":181,"m":{"culture":[9]}},{"n":"Thessalia","href":"regions/Thessalia.html","s":"Larissa","cap":false,"o":"Antigonid Kingdom","sym":"../../symbols/antigonid.png","c":[40,28,48],"x":138,"y":117,"m":{"culture":[0]}},{"n":"Thracian Chersonesos","href":"regions/Thracian_Chersonesos.html","s":"Lysimachia","cap":false,"o":"Seleucid Empire","sym":"../../symbols/seleucid.png","c":[106,106,110],"x":153,"y":108,"m":{"culture":[0]}},{"n":"Tobgaxag","href":"regions/Tobgaxag.html","s":"Thugga","cap":false,"o":"Massylii","sym":"../../symbols/massylii.png","c":[98,101,109],"x":77,"y":139,"m":{"culture":[9]}},{"n":"Tonelandia","href":"regions/Tonelandia.html","s":"Eddopolis","cap":true,"o":"Dummies","sym":"../../symbols/dummies.png","c":[150,150,150],"x":4,"y":228,"m":{"culture":[0]}},{"n":"Tracheias Atropatene","href":"regions/Tracheias_Atropatene.html","s":"Ouera","cap":false,"o":"Atropatene","sym":"../../symbols/atropatene.png","c":[60,84,75],"x":243,"y":98,"m":{"culture":[7]}},{"n":"Trinacria","href":"regions/Trinacria.html","s":"Syracuse","cap":true,"o":"Syracuse","sym":"../../symbols/syracuse.png","c":[46,38,43],"x":106,"y":133,"m":{"culture":[0]}},{"n":"Trinobantia","href":"regions/Trinobantia.html","s":"Camelodunum","cap":true,"o":"Trinovantes","sym":"../../symbols/trinovantes.png","c":[93,102,120],"x":60,"y":47,"m":{"culture":[19]}},{"n":"Tripolitania","href":"regions/Tripolitania.html","s":"Leptis","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":101,"y":158,"m":{"culture":[10]}},{"n":"Tylisia","href":"regions/Tylisia.html","s":"Tylis","cap":true,"o":"Tylis","sym":"../../symbols/tylis.png","c":[75,83,77],"x":151,"y":95,"m":{"culture":[1]}},{"n":"Tyria","href":"regions/Tyria.html","s":"Tyre","cap":false,"o":"Ptolemaic Kingdom","sym":"../../symbols/ptolemaic.png","c":[150,150,126],"x":199,"y":139,"m":{"culture":[10]}},{"n":"Umbria","href":"regions/Umbria.html","s":"Sena Gallica","cap":false,"o":"Rome","sym":"../../symbols/romans_julii.png","c":[74,33,33],"x":95,"y":95,"m":{"culture":[3]}},{"n":"Vaspurakan","href":"regions/Vaspurakan.html","s":"Tushpa","cap":false,"o":"Armenia","sym":"../../symbols/armenia.png","c":[60,18,25],"x":225,"y":99,"m":{"culture":[6]}},{"n":"Volcaea","href":"regions/Volcaea.html","s":"Menosgada","cap":true,"o":"Volcae","sym":"../../symbols/volcae.png","c":[69,74,60],"x":97,"y":63,"m":{"culture":[1]}},{"n":"Xatiq","href":"regions/Xatiq.html","s":"Utica","cap":false,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":81,"y":131,"m":{"culture":[10]}},{"n":"Zeugitana","href":"regions/Zeugitana.html","s":"Carthage","cap":true,"o":"Carthage","sym":"../../symbols/carthage.png","c":[150,150,150],"x":84,"y":134,"m":{"culture":[10]}}];
+var MODES = [{"k":"culture","label":"Culture (who built the town)","multi":false,"ord":false,"vals":[["Greek","/v/classic/cultures/greek.md",24],["Gallic","/v/classic/cultures/barbarian.md",14],["Eastern Hellenistic","/v/classic/cultures/e_hellenistic.md",24],["Roman","/v/classic/cultures/roman.md",8],["Illyrian","/v/classic/cultures/illyrian.md",1],["Celtiberian","/v/classic/cultures/celtiberian.md",2],["Caucasian","/v/classic/cultures/eastern.md",8],["Iranian","/v/classic/cultures/iranian.md",22],["Scythian","/v/classic/cultures/scythian.md",2],["Libyan","/v/classic/cultures/libyan.md",9],["Phoenician","/v/classic/cultures/carthaginian.md",18],["Thracian","/v/classic/cultures/thracian.md",2],["Western Hellenistic","/v/classic/cultures/w_hellenistic.md",7],["Germanic","/v/classic/cultures/germanic.md",4],["Iberian","/v/classic/cultures/iberian.md",1],["Ethiopian","/v/classic/cultures/ethiopian.md",3],["Indian","/v/classic/cultures/indian.md",3],["Dacian","/v/classic/cultures/dacian.md",1],["Arab","/v/classic/cultures/arab.md",6],["Brittonic","/v/classic/cultures/brittonic.md",1]],"order":[18,19,6,5,17,2,15,1,13,0,14,4,16,7,9,10,3,8,11,12]}];
+var WS = 4, MW = 384, MH = 234;
+// Zoom cap: the terrain behind the picture has only two pixels per map pixel, so past about
+// 1.4 image pixels per screen pixel the browser only stretches it (reported as blurry).
+var MAXS = 1.4;
+var box = document.getElementById("wm"), inn = document.getElementById("wm-in"), tip = document.getElementById("wm-tip");
+var s = 1, x = 0, y = 0, minS = 0.1, ids = null, labs = [];
+function esc(t){ return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function apply(){
+  var w = box.clientWidth, h = box.clientHeight;
+  s = Math.max(minS, Math.min(MAXS, s));
+  x = Math.min(0, Math.max(w - 1536 * s, x)); y = Math.min(0, Math.max(h - 936 * s, y));
+  if (1536 * s < w) x = (w - 1536 * s) / 2;
+  if (936 * s < h) y = (h - 936 * s) / 2;
+  inn.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+  // Names only once close enough to read them without piling up (one map pixel is 4 world
+  // pixels, so at 1.1 a settlement is ~4.4 screen pixels per map pixel). One style write
+  // sizes every label; setting 1,305 font sizes on each zoom step froze the page.
+  box.classList.toggle("names", s >= 1.1);
+  inn.style.setProperty("--lf", (12 / s).toFixed(1) + "px");
+  // Only the labels inside the view are drawn: 1,305 shadowed labels on a layer several
+  // thousand pixels wide stalled the page.
+  if (s >= 1.1) {
+    var x0 = -x / s, y0 = -y / s, x1 = x0 + w / s, y1 = y0 + h / s;
+    labs.forEach(function(l){ var on = l._x >= x0 - 50 && l._x <= x1 && l._y >= y0 - 20 && l._y <= y1 + 20; if (on !== l._on) { l._on = on; l.classList.toggle("on", on); } });
+  }
+}
+function fit(){ minS = Math.min(box.clientWidth / 1536, box.clientHeight / 936); s = minS; x = 0; y = 0; apply(); }
+function zoomAt(f, cx, cy){ var ns = Math.max(minS, Math.min(MAXS, s * f)); x = cx - (cx - x) * ns / s; y = cy - (cy - y) * ns / s; s = ns; apply(); }
+
+// Settlement names, placed on the map, shown once zoomed in.
+DATA.forEach(function(d){
+  if (!d || d.x == null) return;
+  var l = document.createElement("div");
+  l.className = "wm-lab"; l.textContent = d.s + (d.cap ? " ★" : "");
+  l._x = (d.x + .5) * WS; l._y = (d.y + .5) * WS; l._on = false;
+  l.style.left = l._x + "px"; l.style.top = l._y + "px";
+  inn.appendChild(l); labs.push(l);
+});
+
+// Which region is under a point: ids.png, read once into an array.
+var im = document.getElementById("wm-ids");
+function loadIds(){
+  try {
+    var c = document.createElement("canvas"); c.width = MW; c.height = MH;
+    var g = c.getContext("2d"); g.drawImage(im, 0, 0);
+    var p = g.getImageData(0, 0, MW, MH).data;
+    ids = new Int16Array(MW * MH);
+    for (var i = 0; i < MW * MH; i++) ids[i] = (p[i * 4] << 8 | p[i * 4 + 1]) - 1;
+    paint();
+  } catch (e) { ids = null; }
+}
+if (im.complete && im.naturalWidth) loadIds(); else im.addEventListener("load", loadIds);
+// Colour by: "faction" uses each holder's own colour; every other mode colours a region by its
+// value (its first, where it has several), and a click in the key shows one value alone.
+var mode = null, iso = -1, cols = [], HI = [235, 70, 30];
+function hsl(h, sa, l){ sa /= 100; l /= 100; var k = function(n){ return (n + h / 30) % 12; }, a = sa * Math.min(l, 1 - l);
+  return [0, 8, 4].map(function(n){ return Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))); }); }
+function colours(m){
+  var c = [], n = m.order.length;
+  m.order.forEach(function(v, pos){
+    if (m.ord) { var t = n > 1 ? pos / (n - 1) : 1; c[v] = [Math.round(170 - 130 * t), Math.round(120 + 45 * t), Math.round(70 - 20 * t)]; }
+    else c[v] = hsl((pos * 137.508) % 360, 62, 52);
+  });
+  return c;
+}
+function colourOf(d){
+  if (!passes(d)) return null;
+  if (!mode) return andOn() ? HI : null;
+  if (mode === "faction") return d.c;
+  var v = d.m && d.m[mode.k];
+  if (!v || !v.length) return null;
+  // One value shown alone is painted in one strong colour, whatever its key colour, so a blue
+  // zone is not lost against the sea.
+  if (iso >= 0) return v.indexOf(iso) >= 0 ? HI : null;
+  return cols[v[0]];
+}
+function paint(){
+  box.classList.toggle("owners", !!mode || andOn()); box.classList.toggle("iso", iso >= 0 || (!mode && andOn()));
+  if (!ids || (!mode && !andOn())) return;
+  var cv = document.getElementById("wm-cv"), g = cv.getContext("2d"), o = g.createImageData(MW, MH);
+  var cache = DATA.map(function(d){ return d ? colourOf(d) : null; });
+  for (var i = 0; i < MW * MH; i++) {
+    var c = ids[i] >= 0 ? cache[ids[i]] : null;
+    if (c) { o.data[i * 4] = c[0]; o.data[i * 4 + 1] = c[1]; o.data[i * 4 + 2] = c[2]; o.data[i * 4 + 3] = 255; }
+  }
+  g.putImageData(o, 0, 0);
+}
+var sel = document.getElementById("wm-mode"), leg = document.getElementById("wm-leg");
+MODES.forEach(function(m){ var op = document.createElement("option"); op.value = m.k; op.textContent = m.label; sel.appendChild(op); });
+function legend(){
+  if (!mode || mode === "faction") { leg.hidden = true; leg.innerHTML = ""; return; }
+  leg.hidden = false;
+  var note = iso >= 0 ? '<span class="wm-note">Showing only ' + esc(mode.vals[iso][0]) + (mode.vals[iso][1] ? ' (<a href="/' + mode.vals[iso][1] + '">read about it</a>)' : "") + '. Click it again to show all.</span>'
+    : mode.multi ? '<span class="wm-note">A region with several is coloured by its first. Click a name to see all of it.</span>' : "";
+  leg.innerHTML = note + mode.order.map(function(v){
+    var c = iso === v ? HI : cols[v], val = mode.vals[v];
+    return '<button type="button" data-v="' + v + '" class="' + (iso === v ? "on" : iso >= 0 ? "off" : "") + '"><i style="background:rgb(' + c.join(",") + ')"></i>' + esc(val[0]) + ' <small>' + val[2] + '</small></button>';
+  }).join("");
+}
+leg.addEventListener("click", function(e){
+  var b = e.target.closest("button"); if (!b) return;
+  var v = +b.getAttribute("data-v"); iso = iso === v ? -1 : v; legend(); paint();
+});
+function setMode(k){
+  mode = k === "faction" ? "faction" : MODES.find(function(m){ return m.k === k; }) || null;
+  iso = -1; cols = mode && mode !== "faction" ? colours(mode) : [];
+  try { localStorage.setItem("ris-wm-mode", k); } catch (e) {}
+  legend(); paint();
+}
+sel.onchange = function(){ setMode(this.value); };
+// "Only where": a second property and one of its values; only regions that have it are painted
+// (asked for 2026-09-29: e.g. hills that have iron).
+var andSel = document.getElementById("wm-and"), andVal = document.getElementById("wm-and-v"), andMode = null, andV = -1;
+MODES.forEach(function(m){ var op = document.createElement("option"); op.value = m.k; op.textContent = m.label; andSel.appendChild(op); });
+function andOn(){ return !!andMode && andV >= 0; }
+function passes(d){ if (!andOn()) return true; var v = d.m && d.m[andMode.k]; return !!v && v.indexOf(andV) >= 0; }
+andSel.onchange = function(){
+  andMode = MODES.find(function(m){ return m.k === andSel.value; }) || null; andV = -1;
+  andVal.hidden = !andMode;
+  andVal.innerHTML = andMode ? '<option value="">choose…</option>' + andMode.order.map(function(v){ return '<option value="' + v + '">' + esc(andMode.vals[v][0]) + '</option>'; }).join("") : "";
+  paint();
+};
+andVal.onchange = function(){ andV = andVal.value === "" ? -1 : +andVal.value; paint(); };
+try { var saved = localStorage.getItem("ris-wm-mode"); if (saved && [].some.call(sel.options, function(o){ return o.value === saved; })) { sel.value = saved; setMode(saved); } } catch (e) {}
+function regionAt(cx, cy){
+  if (!ids) return null;
+  var mx = Math.floor((cx - x) / s / WS), my = Math.floor((cy - y) / s / WS);
+  if (mx < 0 || my < 0 || mx >= MW || my >= MH) return null;
+  var k = ids[my * MW + mx];
+  return k >= 0 ? DATA[k] : null;
+}
+
+// Pointer: drag to pan (mouse or one finger), pinch to zoom (two fingers), hover for the card.
+var pts = {}, moved = 0;
+box.addEventListener("pointerdown", function(e){ box.setPointerCapture(e.pointerId); pts[e.pointerId] = { x: e.clientX, y: e.clientY }; moved = 0; box.classList.add("drag"); });
+box.addEventListener("pointermove", function(e){
+  var r = box.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top, keys = Object.keys(pts);
+  if (keys.length === 2 && pts[e.pointerId]) {
+    var a = pts[keys[0]], b = pts[keys[1]], d0 = Math.hypot(a.x - b.x, a.y - b.y);
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY }; a = pts[keys[0]]; b = pts[keys[1]];
+    var d1 = Math.hypot(a.x - b.x, a.y - b.y);
+    if (d0 > 0) zoomAt(d1 / d0, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+    moved += 10; return;
+  }
+  if (pts[e.pointerId]) {
+    var p = pts[e.pointerId];
+    x += e.clientX - p.x; y += e.clientY - p.y;
+    moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y);
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    apply(); tip.style.display = "none"; return;
+  }
+  var d = regionAt(cx, cy);
+  if (!d) { tip.style.display = "none"; box.style.cursor = ""; return; }
+  tip.innerHTML = "<b>" + esc(d.n) + "</b><br>" + esc(d.s) + (d.cap ? " ★ capital" : "") + "<br>" + (d.sym ? '<img src="/' + d.sym + '" alt="">' : "") + esc(d.o) + modeLine(d);
+  tip.style.display = "block"; box.style.cursor = "pointer";
+  var tx = cx + 16, ty = cy + 16;
+  if (tx + tip.offsetWidth > box.clientWidth) tx = cx - tip.offsetWidth - 12;
+  if (ty + tip.offsetHeight > box.clientHeight) ty = cy - tip.offsetHeight - 12;
+  tip.style.left = tx + "px"; tip.style.top = ty + "px";
+});
+function modeLine(d){
+  if (!mode || mode === "faction") return "";
+  var v = d.m && d.m[mode.k];
+  return "<br><small>" + esc(mode.label) + ": " + (v && v.length ? v.map(function(i){ return esc(mode.vals[i][0]); }).join(", ") : "none") + "</small>";
+}
+function up(e){ delete pts[e.pointerId]; if (!Object.keys(pts).length) box.classList.remove("drag"); }
+box.addEventListener("pointerup", function(e){
+  var r = box.getBoundingClientRect(), wasClick = moved < 6 && Object.keys(pts).length === 1;
+  up(e);
+  if (wasClick) { var d = regionAt(e.clientX - r.left, e.clientY - r.top); if (d && d.href) location.href = d.href; }
+});
+box.addEventListener("pointercancel", up);
+box.addEventListener("pointerleave", function(){ tip.style.display = "none"; });
+box.addEventListener("wheel", function(e){ e.preventDefault(); var r = box.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+document.getElementById("wm-plus").onclick = function(){ zoomAt(1.4, box.clientWidth / 2, box.clientHeight / 2); };
+document.getElementById("wm-minus").onclick = function(){ zoomAt(1 / 1.4, box.clientWidth / 2, box.clientHeight / 2); };
+document.getElementById("wm-fit").onclick = fit;
+document.getElementById("wm-names").onchange = function(){ box.classList.toggle("nonames", !this.checked); };
+
+// Find: pick a settlement or region from the list, and the map flies there.
+var dl = document.getElementById("wm-list"), opts = [];
+DATA.forEach(function(d){ if (d && d.x != null) { opts.push([d.s, d]); if (d.n !== d.s) opts.push([d.n, d]); } });
+opts.sort(function(a, b){ return a[0].localeCompare(b[0]); });
+dl.innerHTML = opts.map(function(o){ return '<option value="' + esc(o[0]) + '">'; }).join("");
+var findBox = document.getElementById("wm-find");
+findBox.addEventListener("keydown", function(e){ if (e.key === "Enter") findBox.dispatchEvent(new Event("change")); });
+findBox.addEventListener("change", function(){
+  var v = this.value.toLowerCase();
+  var hit = opts.find(function(o){ return o[0].toLowerCase() === v; }) || opts.find(function(o){ return o[0].toLowerCase().indexOf(v) === 0; });
+  if (!hit) return;
+  s = 1.2; x = box.clientWidth / 2 - (hit[1].x + .5) * WS * s; y = box.clientHeight / 2 - (hit[1].y + .5) * WS * s; apply();
+});
+window.addEventListener("resize", function(){ var whole = s <= minS * 1.001; minS = Math.min(box.clientWidth / 1536, box.clientHeight / 936); if (whole) fit(); else apply(); });
+fit();
+})();
+</script>
+</main>
+</div>
+<script>
+// See build-ris-wiki-site.js: file:// documents may be denied localStorage, and the shell's
+// script touches it before any try/catch. A memory stand-in keeps the rest of the page alive.
+(function(){try{var k="__ris";localStorage.setItem(k,"1");localStorage.removeItem(k);}catch(e){
+var m={};try{Object.defineProperty(window,"localStorage",{value:{getItem:function(k){return k in m?m[k]:null;},
+setItem:function(k,v){m[k]=String(v);},removeItem:function(k){delete m[k];}},configurable:true});}catch(e2){}}})();
+</script>
+<script src="../../wiki.js?v=0fad7a6e67"></script>
+</body></html>

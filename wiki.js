@@ -564,7 +564,7 @@ window.RIS_REMASTERED = ["acarnania","achaea","acragas","aetolia","antigonid","a
   }
   function run(root){
     root.querySelectorAll('a[href*="factions/"]').forEach(function(a){
-      if (a.getAttribute("data-rm") || a.closest("nav, .crumb, .top")) return;
+      if (a.getAttribute("data-rm") || a.closest("nav, .crumb, .top, .ctabs")) return;
       var m = FAC.exec(a.getAttribute("href"));
       a.setAttribute("data-rm", "1");
       if (!m || !set[m[2]] || !a.textContent.trim()) return;
