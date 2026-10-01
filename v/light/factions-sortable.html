@@ -82,8 +82,8 @@ function cell(v, col) {
   // A card thumbnail, lazily loaded with explicit dimensions (no relayout as each arrives).
   if (col && col.thumb) {
     if (!v) return "";
-    var i = '<img loading="lazy" decoding="async" width="35" height="48" src="/' + v.img + '" alt="">';
-    return v.href ? '<a href="/' + v.href + '">' + i + '</a>' : i;
+    var i = '<img loading="lazy" decoding="async" width="35" height="48" src="' + v.img + '" alt="">';
+    return v.href ? '<a href="' + v.href + '">' + i + '</a>' : i;
   }
   // A number with a bar showing where it sits against the column's maximum.
   if (col && col.bar && typeof v === "number") {
@@ -92,9 +92,9 @@ function cell(v, col) {
   }
   if (typeof v === "number") return esc(v.toLocaleString("en-US"));
   if (v && typeof v === "object") {
-    var sym = v.sym ? '<img class="sym" src="/' + v.sym + '" alt="">' : "";
+    var sym = v.sym ? '<img class="sym" src="' + v.sym + '" alt="">' : "";
     var t = esc(v.text == null || v.text === "" ? "—" : v.text) + (v.mark ? " " + esc(v.mark) : "");
-    return sym + (v.href ? '<a href="/' + v.href + '">' + t + '</a>' : t);
+    return sym + (v.href ? '<a href="' + v.href + '">' + t + '</a>' : t);
   }
   return esc(v == null || v === "" ? "—" : v);
 }

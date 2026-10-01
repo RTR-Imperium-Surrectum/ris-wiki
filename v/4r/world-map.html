@@ -163,7 +163,7 @@ MODES.forEach(function(m){ var op = document.createElement("option"); op.value =
 function legend(){
   if (!mode || mode === "faction") { leg.hidden = true; leg.innerHTML = ""; return; }
   leg.hidden = false;
-  var note = iso >= 0 ? '<span class="wm-note">Showing only ' + esc(mode.vals[iso][0]) + (mode.vals[iso][1] ? ' (<a href="/' + mode.vals[iso][1] + '">read about it</a>)' : "") + '. Click it again to show all.</span>'
+  var note = iso >= 0 ? '<span class="wm-note">Showing only ' + esc(mode.vals[iso][0]) + (mode.vals[iso][1] ? ' (<a href="' + mode.vals[iso][1] + '">read about it</a>)' : "") + '. Click it again to show all.</span>'
     : mode.multi ? '<span class="wm-note">A region with several is coloured by its first. Click a name to see all of it.</span>' : "";
   leg.innerHTML = note + mode.order.map(function(v){
     var c = iso === v ? HI : cols[v], val = mode.vals[v];
@@ -224,7 +224,7 @@ box.addEventListener("pointermove", function(e){
   }
   var d = regionAt(cx, cy);
   if (!d) { tip.style.display = "none"; box.style.cursor = ""; return; }
-  tip.innerHTML = "<b>" + esc(d.n) + "</b><br>" + esc(d.s) + (d.cap ? " ★ capital" : "") + "<br>" + (d.sym ? '<img src="/' + d.sym + '" alt="">' : "") + esc(d.o) + modeLine(d);
+  tip.innerHTML = "<b>" + esc(d.n) + "</b><br>" + esc(d.s) + (d.cap ? " ★ capital" : "") + "<br>" + (d.sym ? '<img src="' + d.sym + '" alt="">' : "") + esc(d.o) + modeLine(d);
   tip.style.display = "block"; box.style.cursor = "pointer";
   var tx = cx + 16, ty = cy + 16;
   if (tx + tip.offsetWidth > box.clientWidth) tx = cx - tip.offsetWidth - 12;
@@ -244,7 +244,8 @@ box.addEventListener("pointerup", function(e){
 });
 box.addEventListener("pointercancel", up);
 box.addEventListener("pointerleave", function(){ tip.style.display = "none"; });
-box.addEventListener("wheel", function(e){ e.preventDefault(); var r = box.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+// Scrolling down over the whole map scrolls the page; only zooming takes the wheel.
+box.addEventListener("wheel", function(e){ if (e.deltaY > 0 && s <= minS * 1.001) return; e.preventDefault(); var r = box.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
 document.getElementById("wm-plus").onclick = function(){ zoomAt(1.4, box.clientWidth / 2, box.clientHeight / 2); };
 document.getElementById("wm-minus").onclick = function(){ zoomAt(1 / 1.4, box.clientWidth / 2, box.clientHeight / 2); };
 document.getElementById("wm-fit").onclick = fit;
