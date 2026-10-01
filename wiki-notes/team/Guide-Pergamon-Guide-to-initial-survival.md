@@ -1,0 +1,46 @@
+# Pergamon: Guide to initial survival
+
+<br>Factions: [Pergamon](/Tarnholm/ris-wiki/wiki/factions-pergamon)
+<br>Summary: Initial steps to survive as Pergamon and a general guide for expanding the realm without getting bogged down in an impossible war against the Seleucid Empire
+<br>Author: nerva6569
+
+<!-- The three lines above fill in this guide's entry on the Community guides page:
+     Factions = faction names, separated by commas (their emblems show beside the guide)
+     Summary  = one line shown under the title
+     Author   = who wrote it
+     Replace the placeholder text below with your guide. Each ## heading is a section.
+     Links to wiki pages work too, e.g. [Rome](factions-romans_julii). -->
+
+## Overview
+
+Pergamon is quite far away from its peak as a nation in the 2nd century BCE. At the game's start in 270 BCE, the nation is little more than a city-state stuck between the titanic Seleucid Empire and the Aegean Sea. At the beginning of your campaign, you only control 2 settlements: Pergamon itself and Kyme to the south. Don't be mistaken, however, Pergamon is one of the richest cities in the world at the game's beginning: already at a city-level size, its developed military infrastructure and its region of Kaikia, possessing numerous strategic resources, will help you punch above your weight despite your small size. Don't get too comfortable just yet, however. It might appear that the Seleucid Empire is your friend, but in reality you are little more than an independent vassal to Antiochos, and as a vassal he will expect continuous payment, or you may just have reached the limits of your usefulness. So rise from your stupor and get on collecting the resources and providing the means to give King Antiochos his expected tribute.
+
+## Getting started
+
+Start by building a Small Treasury in your capital, Pergamon. This building shall provide you with the funds to get out of the red and allow the cities in your nation to keep growing without the hamper of higher taxes. A diplomat, as well, will become essential in the next few turns to reach trade agreements, sell map information and, most importantly, keep the Seleucids at bay with steady tribute (monetary gifts).  
+
+Militarily, your start isn't as precarious as your small territory might indicate. You start with a balanced army with which to start building a solid power base, and Pergamene Hoplites are quite above your average hoplite offensively and defensively. You might be tempted by the undefended towns of your liege lord and might wish to engage the Seleucid Empire as fast as possible and just get rid of the looming threat, but I wouldn't advise it: Antiochos is commanding his royal army in Anatolia, and is just a couple of turns away from arriving at your doorstep with a full army containing phalanx-wielding regiments and Indian Elephants. You might be able to capture a few cities before getting bogged down and overwhelmed by the Seleucid might of arms.
+
+There is, however, another large empire in your vicinity that will struggle to stop your raids: the Ptolemaic Kingdom. The Aegean Sea (to the west) and western Anatolia (to the south) are dotted with Ptolemaic settlements ripe for the taking, most barely house any garrison and will be easily defendable by slowly gaining control of the seas and keeping the Seleucid neighbor content with regular tribute. So gather the largest army possible commanded by Attalos the Orator. Pergamon and Kyme will not revolt if you leave at least one spare character governing each of them. Ideally, Philetarios' and Eumenes' incredible Influence stats should be kept as governors to maximize population growth and income in your starting settlements. You may reassign them as the campaign advances and other settlements become desirable to grow. Load the army onto your starting fleet and start sieging Mytilene. After ordering some rams to be constructed, you should be good to end your first turn. Just don't forget to bring your ships back to a friendly port: the Ptolemaic fleets greatly outnumber you at this point, and you can't have the luxury of losing your transports.
+
+Take Mytilene, but avoid sacking it. It is a developed city next to your capital, and it'll be easy to exploit its income to the maximum. By this point, you should be turning a profit, but remember: for the time being, as much of your income as possible should go to pleasing the Seleucid neighbor. The objective is to reach +80 in relations between both states and keep it there at the end of every single turn while you increase your income by expanding your domain in the Aegean isles.
+
+Send your diplomat east and train a new one to stay next to a Seleucid settlement, allowing you to keep the gifts flowing and the relations going up. Leave a small garrison and push forwards towards Methymna. You won't require any more soldiers in the short term. Ptolemaic holdings in the Aegean are barely garrisoned, so prioritize your funds on keeping the Seleucid Empire happy. Your hold on Pergamon (your richest city) depends on it.
+
+Keep feeding the Seleucid juggernaut at pleasure. At this stage, the conquest of neighboring Ptolemaic holdings shouldn't represent a major challenge. Just stick to the islands or provinces only bordered by the Seleucid Empire. If you see an opportunity, diversify your conquest objectives: the Athenian island settlements of Skyros and Myrina, the Spartan Kythera, the rebel Thasos to the north, Priene, Miletos (if it has revolted), Rhodes or Crete. You may continue expanding in the Aegean relatively safely if you keep the Seleucids' relations high. Keep your free diplomat(s) on the move, selling Map Information if you are short of cash, and you may even get a juicy tribute by offering peace to the Galatians.
+
+## Tips
+
+Priorities in the first 20-odd turns of the campaign should follow this order:
+
+1. Seleucid relations, tribute gifts.
+2. Government buildings in your new settlements.
+3. Garrison recruitment.
+4. Additional troops to enlarge your army.
+5. Increase navies.
+
+Remember that engaging the Seleucid Empire and having at least 30 units will give you access to the Mysian Archers, which greatly improve your long-range options. However, by this point you may have access to regional Cretan Archers as well, and the trade-off from being at war with the Seleucid Empire might not be worth the hurdle. Additionally, when your cash flow is steady, remember that Pergamon (the region of Kaikia) holds a special mercenary center; in it you will find great specialized mercenary units to complement your Hellenistic armies, like assault infantry, unique skirmisher units, heavy-hitting long-range archers and slingers, and heavy cavalry, all of them tied to a recruitment pool only accessible to you.
+
+## Conclusion
+
+Pace yourself to your liking. You will remain safe for as long as relations are kept at maximum with the Seleucid Empire. Your enemies will seldom land to attack your island settlements, and borders will remain secure to the east. After conquering the Aegean Islands and coast, you may have 1 or 2 armies good enough to betray the Seleucid Empire and start the conquest of Anatolia, or you may prefer to land in the Peloponnese and hit more vulnerable factions. With the economic base you will have created on the Aegean, the world is at your mercy.
