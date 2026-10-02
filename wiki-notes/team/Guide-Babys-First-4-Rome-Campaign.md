@@ -4,7 +4,11 @@ Factions: Rome
 Summary: Setting up your first turn, and general beginner tips.
 Author: Static
 
-<!-- Imperator...
+Imperator...
+***
+
+***
+
 
 Welcome to the classic 4-Rome Campaign! This campaign is designed around Hard/Hard difficulty, and this guide will be tailored as such. Rome was not built in a day, and your campaign won't be either. This guide will simply focus on getting a campaign started. Anything too far in is too speculative to pre-plan for, though certain strategies generally apply to everyone's playthrough.
 
