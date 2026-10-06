@@ -32,11 +32,16 @@ Keep feeding the Seleucid juggernaut at pleasure. At this stage, the conquest of
 ## Tips
 
 Priorities in the first 20-odd turns of the campaign should follow this order:
-<br>1. Seleucid relations, tribute gifts.
-<br>2. Government buildings in your new settlements.
-<br>3. Garrison recruitment.
-<br>4. Additional troops to enlarge your army.
-<br>5. Increase your navy.
+
+1. Seleucid relations, tribute gifts.
+
+2. Government buildings in your new settlements.
+
+3. Garrison recruitment.
+
+4. Additional troops to enlarge your army.
+
+5. Increase your navy.
 
 Remember that engaging the [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/seleucid.png" alt="" width="24" height="24" style="vertical-align:middle"> Seleucid Empire](/Tarnholm/ris-wiki/wiki/factions-seleucid) and having at least 30 units will give you access to the Mysian Archers, which greatly improve your long-range options. However, by this point you may have access to regional Cretan Archers as well, and the trade-off from being at war with the Seleucid Empire might not be worth the hurdle. Additionally, when your cash flow is steady, remember that Pergamon (the region of [Kaikia](/Tarnholm/ris-wiki/wiki/regions-Kaikia)) holds a special mercenary center; in it you will find great specialized mercenary units to complement your Hellenistic armies, like assault infantry, unique skirmisher units, heavy-hitting long-range archers and slingers, and heavy cavalry, all of them tied to a recruitment pool only accessible to you.
 
