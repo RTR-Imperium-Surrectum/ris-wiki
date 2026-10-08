@@ -1,6 +1,6 @@
 # Pleasant Start to create a Bosporan Empire
 
-<br>Factions: [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/bosporan.png" alt="" width="24" height="24" style="vertical-align:middle"> Bosporan Kingdom](/Tarnholm/ris-wiki/wiki/-bosporan)
+<br>Factions: [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/bosporan.png" alt="" width="24" height="24" style="vertical-align:middle"> Bosporans](/Tarnholm/ris-wiki/wiki/-bosporan)
 <br>Summary: This guide aims to provide a few initial steps and tips to help you set up your Bosporan game. This faction brings together the best of the Scythian and Greek worlds, I hope this path makes your experience as rewarding as possible.
 <br>Author: nerva6569
 
