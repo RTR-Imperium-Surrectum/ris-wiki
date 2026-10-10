@@ -1,8 +1,8 @@
 # Syracuse: Lets Match the Romans and Carthaginians Might
 
-Factions: [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/pergamon.png" alt="" width="24" height="24" style="vertical-align:middle"> Syracuse](/Tarnholm/ris-wiki/wiki/factions-syracuse)
-Summary: This guide will provide you some recommendations regarding initial steps and early survivability as Syracuse
-Author: nerva6569
+<br>Factions: [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/pergamon.png" alt="" width="24" height="24" style="vertical-align:middle"> Syracuse](/Tarnholm/ris-wiki/wiki/factions-syracuse)
+<br>Summary: This guide will provide you some recommendations regarding initial steps and early survivability as Syracuse
+<br>Author: nerva6569
 
 <!-- The three lines above fill in this guide's entry on the Community guides page:
      Factions = faction names, separated by commas (their emblems show beside the guide)
