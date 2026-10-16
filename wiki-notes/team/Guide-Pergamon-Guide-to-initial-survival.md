@@ -1,4 +1,4 @@
-# Pergamon: Guide to initial survival
+# Pergamon: Guide to Initial Survival
 
 <br>Faction: [<img src="https://raw.githubusercontent.com/Tarnholm/ris-wiki/main/symbols/pergamon.png" alt="" width="24" height="24" style="vertical-align:middle"> Pergamon](/Tarnholm/ris-wiki/wiki/factions-pergamon)
 <br>Summary: Initial steps to survive as Pergamon and a general guide for expanding the realm without getting bogged down in an impossible war against the Seleucid Empire
