@@ -166,6 +166,21 @@ nav.side a{display:block;color:var(--fg);text-decoration:none;padding:.2rem .45r
   border-radius:6px;line-height:1.4}
 nav.side a:hover{background:var(--acc-soft);color:var(--acc)}
 nav.side a.on{background:var(--acc-soft);color:var(--acc);font-weight:600}
+/* A system's pages fold under it (lib/wikiNav.js); the arrow sits over the right end of the
+   system's own link, which keeps its full width as a target. Child links keep the full text
+   colour: the muted tone fails AA on the sidebar surface. */
+nav.side a.in{color:var(--acc)}
+nav.side .grp{position:relative}
+nav.side .grp>a{padding-right:1.8rem}
+nav.side .fold{position:absolute;right:0;top:0;width:1.7rem;height:calc(1.4em + .4rem);padding:0;border:0;
+  border-radius:6px;background:none;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center}
+nav.side .fold::before{content:"";width:.36rem;height:.36rem;border:solid currentColor;border-width:0 2px 2px 0;
+  transform:rotate(-45deg);transition:transform .12s}
+nav.side .fold:hover{background:var(--acc-soft);color:var(--acc)}
+nav.side .grp.open>.fold::before{transform:translateY(-.1rem) rotate(45deg)}
+nav.side .kids{display:none;margin:.1rem 0 .35rem .6rem;padding-left:.4rem;border-left:1px solid var(--line)}
+nav.side .grp.open>.kids{display:block}
+nav.side .kids a{font-size:.8rem;padding:.14rem .45rem}
 /* Every page uses the full width of the window. No max-width: a cap here left the right-hand
    side of a wide monitor empty, which is the thing being fixed. Readability is handled by
    splitting content into columns below rather than by throwing the space away. */
