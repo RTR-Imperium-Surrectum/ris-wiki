@@ -759,6 +759,152 @@
 
 </details>
 
+## v0.4
+
+<details><summary>Leadership and organisation</summary>
+
+- Ahowl11
+- AmyClaraRose
+- Lord Drake
+- Jorellaf
+
+</details>
+
+<details><summary>Campaign map</summary>
+
+- Jorellaf
+- Ahowl11
+
+</details>
+
+<details><summary>Campaign scripts and events</summary>
+
+- tone
+- Sgt. Skillz
+
+</details>
+
+<details><summary>Coding and gameplay</summary>
+
+- tone
+- Lvcke
+- moscaflaca
+- Ahowl11
+- Jorellaf
+
+</details>
+
+<details><summary>Unit models, textures and animations</summary>
+
+- tone
+- Swagger
+- Grimbold
+- starkgate
+- Burninator
+- Flatty93
+
+</details>
+
+<details><summary>Traits and ancillaries</summary>
+
+- tone
+- Rex_Basiliscus
+- Lvcke
+
+</details>
+
+<details><summary>Texts and descriptions</summary>
+
+- Maurits
+- Mausolos
+- Galvanized Iron Raptor
+- Genava55
+- Jorellaf
+- Rex_Basiliscus
+
+</details>
+
+<details><summary>History and research</summary>
+
+- Mausolos
+- Jorellaf
+- Maurits
+- Genava55
+- Galvanized Iron Raptor
+- Rex_Basiliscus
+- Leveller
+- Drtad
+
+</details>
+
+<details><summary>Interface, unit cards, banners and menus</summary>
+
+- starkgate
+- tone
+- Ahowl11
+- Jorellaf
+- Igorche81
+- Burninator
+- CaiusAntonius
+
+</details>
+
+<details><summary>Battle maps, terrain, weather and vegetation</summary>
+
+- Swagger
+- tone
+
+</details>
+
+<details><summary>Music and sound</summary>
+
+- Apple
+- starkgate
+- Sgt. Skillz
+- Tyler Cunningham
+- Saxon
+
+</details>
+
+<details><summary>Tools</summary>
+
+- Jorellaf
+
+</details>
+
+<details><summary>Testing</summary>
+
+- moscaflaca
+- Apple
+- Tedric
+- Primo
+- Regan
+- SaulTyre
+- Vicboss
+- Neep
+- Columcille
+- Mart br
+- Algerian Polak
+- Valorix
+- Cao Cao
+- Malicemane
+- Pyrrhus
+- WalterND14
+- BpkSoeharto
+- Jorellaf
+
+</details>
+
+<details><summary>Community and public relations</summary>
+
+- Apple
+- Maurits
+- AmyClaraRose
+- moscaflaca
+- Jorellaf
+
+</details>
+
 ## v0.3
 
 <details><summary>Leadership and organisation</summary>
