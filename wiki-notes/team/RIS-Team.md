@@ -57,329 +57,293 @@
 
 ## Work in the repository
 
-<details><summary>Factions and campaign setup (30)</summary>
+<details><summary>Factions and campaign setup</summary>
 
-- **Ahowl11**: 824 commits, 2022–2026
-- **Jorellaf**: 343 commits, 2022–2026
-- **Apple**: 315 commits, 2022–2026
-- **Luis**: 93 commits, 2024–2025
-- **philliparnvig**: 88 commits, 2026
-- **Lusitanio**: 74 commits, 2023–2026
-- **exi**: 62 commits, 2022–2026
-- **moscaflaca**: 46 commits, 2022–2023
-- **Swagger**: 39 commits, 2022–2023
-- **tone**: 38 commits, 2022–2026
-- **Balbor**: 36 commits, 2023–2026
-- **Hadrian**: 26 commits, 2026
-- **Patrick**: 23 commits, 2022–2023
-- **Lvcke**: 22 commits, 2022
-- **Zeus Nikephoros**: 19 commits, 2022–2023
-- **Logis0550**: 17 commits, 2022–2023
-- **knorr**: 16 commits, 2022–2026
-- **GIR**: 11 commits, 2026
-- **Dementive**: 8 commits, 2023
-- **Wopper**: 7 commits, 2025
-- **Mitchell**: 5 commits, 2023
-- **zuzaman**: 5 commits, 2023
-- **NakedSpur**: 3 commits, 2023–2026
-- **capy_the_bara**: 2 commits, 2025
-- **Hans Erik**: 2 commits, 2026
-- **Landerote**: 2 commits, 2023
-- **ortiga**: 2 commits, 2023–2024
-- **Eduardo**: 1 commit, 2025
-- **Luis G.**: 1 commit, 2025
-- **Maurits**: 1 commit, 2023
+- Ahowl11
+- Jorellaf
+- Apple
+- Luis
+- philliparnvig
+- Lusitanio
+- exi
+- moscaflaca
+- Swagger
+- tone
+- Balbor
+- Hadrian
+- Patrick
+- Lvcke
+- Zeus Nikephoros
+- Logis0550
+- knorr
+- GIR
+- Dementive
+- Wopper
+- Mitchell
+- zuzaman
+- NakedSpur
+- capy_the_bara
+- Hans Erik
+- Landerote
+- ortiga
 
 </details>
 
-<details><summary>Campaign map (27)</summary>
+<details><summary>Campaign map</summary>
 
-- **Jorellaf**: 422 commits, 2022–2026
-- **Ahowl11**: 321 commits, 2022–2026
-- **Apple**: 64 commits, 2025–2026
-- **exi**: 40 commits, 2023–2026
-- **Swagger**: 40 commits, 2022–2023
-- **Lusitanio**: 34 commits, 2023–2026
-- **Luis**: 28 commits, 2024–2025
-- **knorr**: 21 commits, 2022–2026
-- **Balbor**: 20 commits, 2025–2026
-- **Zeus Nikephoros**: 17 commits, 2022–2023
-- **philliparnvig**: 15 commits, 2026
-- **tone**: 14 commits, 2022–2026
-- **Hadrian**: 8 commits, 2026
-- **moscaflaca**: 8 commits, 2022–2023
-- **Lvcke**: 7 commits, 2022
-- **NakedSpur**: 5 commits, 2023–2026
-- **capy_the_bara**: 2 commits, 2025
-- **Dementive**: 2 commits, 2023
-- **Landerote**: 2 commits, 2023
-- **ortiga**: 2 commits, 2022–2025
-- **Eduardo**: 1 commit, 2025
-- **GIR**: 1 commit, 2026
-- **Logis0550**: 1 commit, 2022
-- **Luis G.**: 1 commit, 2025
-- **Maurits**: 1 commit, 2023
-- **Mitchell**: 1 commit, 2023
-- **Patrick**: 1 commit, 2023
+- Jorellaf
+- Ahowl11
+- Apple
+- exi
+- Swagger
+- Lusitanio
+- Luis
+- knorr
+- Balbor
+- Zeus Nikephoros
+- philliparnvig
+- tone
+- Hadrian
+- moscaflaca
+- Lvcke
+- NakedSpur
+- capy_the_bara
+- Dementive
+- Landerote
+- ortiga
+- Luis G.
 
 </details>
 
-<details><summary>Campaign scripts and events (21)</summary>
+<details><summary>Campaign scripts and events</summary>
 
-- **Ahowl11**: 83 commits, 2022–2026
-- **Jorellaf**: 74 commits, 2022–2026
-- **Apple**: 32 commits, 2026
-- **philliparnvig**: 24 commits, 2026
-- **Maurits**: 21 commits, 2022–2023
-- **Luis**: 18 commits, 2024–2025
-- **Patrick**: 15 commits, 2022–2023
-- **Dementive**: 8 commits, 2023
-- **exi**: 7 commits, 2023–2025
-- **Lusitanio**: 7 commits, 2023–2026
-- **zuzaman**: 7 commits, 2023
-- **Zeus Nikephoros**: 5 commits, 2023
-- **Mitchell**: 4 commits, 2023
-- **Swagger**: 4 commits, 2022
-- **tone**: 4 commits, 2022–2026
-- **moscaflaca**: 3 commits, 2022–2023
-- **Hadrian**: 2 commits, 2026
-- **Lvcke**: 2 commits, 2022
-- **capy_the_bara**: 1 commit, 2025
-- **GIR**: 1 commit, 2026
-- **Landerote**: 1 commit, 2023
+- Ahowl11
+- Jorellaf
+- Apple
+- philliparnvig
+- Maurits
+- Luis
+- Patrick
+- Dementive
+- exi
+- Lusitanio
+- zuzaman
+- Zeus Nikephoros
+- Mitchell
+- Swagger
+- tone
+- moscaflaca
+- Hadrian
+- Lvcke
 
 </details>
 
-<details><summary>Campaign AI (12)</summary>
+<details><summary>Campaign AI</summary>
 
-- **GIR**: 53 commits, 2026
-- **Apple**: 49 commits, 2026
-- **Ahowl11**: 25 commits, 2022–2026
-- **philliparnvig**: 23 commits, 2026
-- **Jorellaf**: 18 commits, 2022–2026
-- **tone**: 12 commits, 2022
-- **exi**: 8 commits, 2023–2026
-- **Swagger**: 7 commits, 2022
-- **Lvcke**: 3 commits, 2022
-- **moscaflaca**: 3 commits, 2023
-- **Luis**: 1 commit, 2025
-- **Wopper**: 1 commit, 2025
+- GIR
+- Apple
+- Ahowl11
+- philliparnvig
+- Jorellaf
+- tone
+- exi
+- Swagger
+- Lvcke
+- moscaflaca
 
 </details>
 
-<details><summary>Units (14)</summary>
+<details><summary>Units</summary>
 
-- **Ahowl11**: 294 commits, 2022–2026
-- **Jorellaf**: 157 commits, 2022–2026
-- **GIR**: 155 commits, 2026
-- **tone**: 134 commits, 2022–2026
-- **Lvcke**: 34 commits, 2022
-- **Luis**: 27 commits, 2024–2025
-- **Apple**: 8 commits, 2026
-- **exi**: 7 commits, 2022–2025
-- **moscaflaca**: 7 commits, 2022–2023
-- **philliparnvig**: 6 commits, 2026
-- **Swagger**: 4 commits, 2022
-- **Logis0550**: 3 commits, 2022
-- **Refract**: 2 commits, 2022
-- **Balbor**: 1 commit, 2026
-
-</details>
-
-<details><summary>Unit models, textures and animations (19)</summary>
-
-- **Balbor**: 293 commits, 2022–2026
-- **exi**: 201 commits, 2022–2025
-- **tone**: 192 commits, 2022–2026
-- **Ahowl11**: 143 commits, 2022–2026
-- **Apple**: 30 commits, 2026
-- **Jorellaf**: 29 commits, 2022–2026
-- **knorr**: 27 commits, 2022–2026
-- **Lvcke**: 25 commits, 2022
-- **GIR**: 24 commits, 2026
-- **Swagger**: 15 commits, 2022–2023
-- **ortiga**: 14 commits, 2023–2025
-- **Luis**: 9 commits, 2025
-- **NakedSpur**: 6 commits, 2022–2026
-- **Landerote**: 2 commits, 2023
-- **Refract**: 2 commits, 2022
-- **capy_the_bara**: 1 commit, 2025
-- **Eduardo**: 1 commit, 2025
-- **moscaflaca**: 1 commit, 2022
-- **Zeus Nikephoros**: 1 commit, 2023
+- Ahowl11
+- Jorellaf
+- GIR
+- tone
+- Lvcke
+- Luis
+- Apple
+- exi
+- moscaflaca
+- philliparnvig
+- Swagger
+- Logis0550
+- Refract
 
 </details>
 
-<details><summary>Buildings and settlements (23)</summary>
+<details><summary>Unit models, textures and animations</summary>
 
-- **Ahowl11**: 391 commits, 2022–2026
-- **Luis**: 154 commits, 2023–2025
-- **Lusitanio**: 140 commits, 2024–2026
-- **exi**: 98 commits, 2022–2026
-- **Jorellaf**: 74 commits, 2022–2026
-- **Swagger**: 68 commits, 2022–2023
-- **Apple**: 59 commits, 2022–2026
-- **tone**: 48 commits, 2022–2023
-- **Lvcke**: 33 commits, 2022
-- **Hadrian**: 26 commits, 2026
-- **moscaflaca**: 17 commits, 2022–2023
-- **philliparnvig**: 8 commits, 2026
-- **zuzaman**: 7 commits, 2023
-- **Zeus Nikephoros**: 4 commits, 2022–2023
-- **knorr**: 3 commits, 2022–2023
-- **Refract**: 3 commits, 2023
-- **NakedSpur**: 2 commits, 2023
-- **Patrick**: 2 commits, 2023
-- **capy_the_bara**: 1 commit, 2025
-- **Dementive**: 1 commit, 2023
-- **Eduardo**: 1 commit, 2025
-- **GIR**: 1 commit, 2026
-- **Luis G.**: 1 commit, 2025
+- Balbor
+- exi
+- tone
+- Ahowl11
+- Apple
+- Jorellaf
+- knorr
+- Lvcke
+- GIR
+- Swagger
+- ortiga
+- Luis
+- NakedSpur
+- Landerote
+- Refract
 
 </details>
 
-<details><summary>Traits and ancillaries (15)</summary>
+<details><summary>Buildings and settlements</summary>
 
-- **Lusitanio**: 140 commits, 2023–2026
-- **Jorellaf**: 93 commits, 2022–2026
-- **Ahowl11**: 38 commits, 2022–2026
-- **Apple**: 29 commits, 2025–2026
-- **Luis**: 9 commits, 2025
-- **tone**: 8 commits, 2022–2026
-- **philliparnvig**: 5 commits, 2026
-- **Swagger**: 5 commits, 2022–2023
-- **exi**: 4 commits, 2025
-- **Lvcke**: 4 commits, 2022
-- **moscaflaca**: 3 commits, 2023
-- **GIR**: 2 commits, 2026
-- **Maurits**: 2 commits, 2023
-- **Eduardo**: 1 commit, 2025
-- **Logis0550**: 1 commit, 2022
-
-</details>
-
-<details><summary>Texts and descriptions (22)</summary>
-
-- **Ahowl11**: 316 commits, 2022–2026
-- **Jorellaf**: 309 commits, 2022–2026
-- **Maurits**: 236 commits, 2022–2026
-- **Lusitanio**: 142 commits, 2023–2026
-- **Luis**: 95 commits, 2024–2025
-- **Apple**: 62 commits, 2025–2026
-- **tone**: 47 commits, 2022–2026
-- **Lvcke**: 27 commits, 2022
-- **GIR**: 25 commits, 2026
-- **philliparnvig**: 17 commits, 2026
-- **exi**: 14 commits, 2022–2025
-- **Hadrian**: 14 commits, 2026
-- **moscaflaca**: 13 commits, 2022–2023
-- **Zeus Nikephoros**: 10 commits, 2023
-- **Logis0550**: 9 commits, 2022–2023
-- **Dementive**: 5 commits, 2023
-- **Swagger**: 5 commits, 2022
-- **Balbor**: 3 commits, 2025–2026
-- **capy_the_bara**: 2 commits, 2025
-- **Patrick**: 2 commits, 2023
-- **Refract**: 2 commits, 2022
-- **Mitchell**: 1 commit, 2023
+- Ahowl11
+- Luis
+- Lusitanio
+- exi
+- Jorellaf
+- Swagger
+- Apple
+- tone
+- Lvcke
+- Hadrian
+- moscaflaca
+- philliparnvig
+- zuzaman
+- Zeus Nikephoros
+- knorr
+- Refract
+- NakedSpur
+- Patrick
 
 </details>
 
-<details><summary>Interface, unit cards, banners and menus (22)</summary>
+<details><summary>Traits and ancillaries</summary>
 
-- **Ahowl11**: 242 commits, 2022–2026
-- **Jorellaf**: 100 commits, 2022–2026
-- **Apple**: 61 commits, 2026
-- **knorr**: 37 commits, 2022–2026
-- **Swagger**: 35 commits, 2022–2023
-- **exi**: 26 commits, 2022–2025
-- **Balbor**: 25 commits, 2026
-- **moscaflaca**: 25 commits, 2022–2023
-- **Luis**: 17 commits, 2025
-- **tone**: 16 commits, 2022–2026
-- **Lusitanio**: 13 commits, 2023–2026
-- **Lvcke**: 11 commits, 2022
-- **GIR**: 10 commits, 2026
-- **NakedSpur**: 10 commits, 2022–2026
-- **ortiga**: 10 commits, 2023–2025
-- **Dementive**: 4 commits, 2023
-- **Eduardo**: 3 commits, 2025–2026
-- **Logis0550**: 3 commits, 2022
-- **Hadrian**: 2 commits, 2026
-- **Landerote**: 2 commits, 2023
-- **capy_the_bara**: 1 commit, 2025
-- **Zeus Nikephoros**: 1 commit, 2023
+- Lusitanio
+- Jorellaf
+- Ahowl11
+- Apple
+- Luis
+- tone
+- philliparnvig
+- Swagger
+- exi
+- Lvcke
+- moscaflaca
+- GIR
+- Maurits
 
 </details>
 
-<details><summary>Battle maps, terrain, weather and vegetation (10)</summary>
+<details><summary>Texts and descriptions</summary>
 
-- **Jorellaf**: 76 commits, 2022–2026
-- **Swagger**: 32 commits, 2022–2023
-- **Ahowl11**: 29 commits, 2022–2026
-- **Eduardo**: 8 commits, 2026
-- **tone**: 5 commits, 2022–2026
-- **Apple**: 4 commits, 2026
-- **Lvcke**: 3 commits, 2022
-- **GIR**: 2 commits, 2026
-- **moscaflaca**: 1 commit, 2023
-- **philliparnvig**: 1 commit, 2026
-
-</details>
-
-<details><summary>Music and sound (6)</summary>
-
-- **Jorellaf**: 73 commits, 2022–2026
-- **Ahowl11**: 60 commits, 2022–2025
-- **Apple**: 5 commits, 2026
-- **Lvcke**: 2 commits, 2022
-- **Swagger**: 2 commits, 2022
-- **GIR**: 1 commit, 2026
-
-</details>
-
-<details><summary>Campaign variants (Four Romans, Light, Classic) (12)</summary>
-
-- **Apple**: 331 commits, 2025–2026
-- **Ahowl11**: 219 commits, 2022–2026
-- **philliparnvig**: 49 commits, 2026
-- **Jorellaf**: 46 commits, 2022–2026
-- **Luis**: 34 commits, 2025
-- **Lusitanio**: 32 commits, 2026
-- **Hadrian**: 26 commits, 2026
-- **Swagger**: 3 commits, 2022–2023
-- **capy_the_bara**: 2 commits, 2025
-- **Maurits**: 1 commit, 2026
-- **NakedSpur**: 1 commit, 2023
-- **tone**: 1 commit, 2026
+- Ahowl11
+- Jorellaf
+- Maurits
+- Lusitanio
+- Luis
+- Apple
+- tone
+- Lvcke
+- GIR
+- philliparnvig
+- exi
+- Hadrian
+- moscaflaca
+- Zeus Nikephoros
+- Logis0550
+- Dementive
+- Swagger
+- Balbor
+- capy_the_bara
+- Patrick
+- Refract
 
 </details>
 
-<details><summary>Tools (16)</summary>
+<details><summary>Interface, unit cards, banners and menus</summary>
 
-- **Apple**: 151 commits, 2026
-- **Jorellaf**: 90 commits, 2022–2026
-- **tone**: 75 commits, 2022–2023
-- **Luis**: 68 commits, 2023–2025
-- **Ahowl11**: 62 commits, 2022–2026
-- **Lvcke**: 28 commits, 2022
-- **Swagger**: 27 commits, 2022–2023
-- **daedsidog**: 12 commits, 2022
-- **Eduardo**: 8 commits, 2026
-- **moscaflaca**: 4 commits, 2022
-- **philliparnvig**: 4 commits, 2026
-- **Lusitanio**: 3 commits, 2026
-- **exi**: 2 commits, 2024–2025
-- **Logis0550**: 2 commits, 2022
-- **Refract**: 2 commits, 2022
-- **capy_the_bara**: 1 commit, 2025
+- Ahowl11
+- Jorellaf
+- Apple
+- knorr
+- Swagger
+- exi
+- Balbor
+- moscaflaca
+- Luis
+- tone
+- Lusitanio
+- Lvcke
+- GIR
+- NakedSpur
+- ortiga
+- Dementive
+- Eduardo
+- Logis0550
+- Hadrian
+- Landerote
 
 </details>
 
-<details><summary>Wiki (2)</summary>
+<details><summary>Battle maps, terrain, weather and vegetation</summary>
 
-- **Apple**: 223 commits, 2026
-- **Jorellaf**: 2 commits, 2026
+- Jorellaf
+- Swagger
+- Ahowl11
+- Eduardo
+- tone
+- Apple
+- Lvcke
+- GIR
+
+</details>
+
+<details><summary>Music and sound</summary>
+
+- Jorellaf
+- Ahowl11
+- Apple
+- Lvcke
+- Swagger
+
+</details>
+
+<details><summary>Campaign variants (Four Romans, Light, Classic)</summary>
+
+- Apple
+- Ahowl11
+- philliparnvig
+- Jorellaf
+- Luis
+- Lusitanio
+- Hadrian
+- Swagger
+- capy_the_bara
+
+</details>
+
+<details><summary>Tools</summary>
+
+- Apple
+- Jorellaf
+- tone
+- Luis
+- Ahowl11
+- Lvcke
+- Swagger
+- daedsidog
+- Eduardo
+- moscaflaca
+- philliparnvig
+- Lusitanio
+- exi
+- Logis0550
+- Refract
+
+</details>
+
+<details><summary>Wiki</summary>
+
+- Apple
+- Jorellaf
 
 </details>
 
