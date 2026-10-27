@@ -445,7 +445,7 @@
 - exi
 - messenger
 - Iambicindeedv2
-- The. Shark
+- The Shark
 - Lollygagging
 - Vicboss
 - Andy's Take
@@ -764,15 +764,25 @@
 <details><summary>Leadership and organisation</summary>
 
 - Ahowl11
-- AmyClaraRose
-- Lord Drake
 - Jorellaf
+- Apple
+- Lord Drake
+- AmyClaraRose
+
+</details>
+
+<details><summary>Factions and campaign setup</summary>
+
+- Apple
+- Nightlon
 
 </details>
 
 <details><summary>Campaign map</summary>
 
 - Jorellaf
+- moscaflaca
+- Muizer
 - Ahowl11
 
 </details>
@@ -784,13 +794,32 @@
 
 </details>
 
-<details><summary>Coding and gameplay</summary>
+<details><summary>Campaign AI</summary>
 
 - tone
-- Lvcke
+
+</details>
+
+<details><summary>Units</summary>
+
+- tone
 - moscaflaca
+- exi
+
+</details>
+
+<details><summary>Coding and gameplay</summary>
+
 - Ahowl11
 - Jorellaf
+- Lvcke
+- Alavaria
+- BHL_20
+- Densus
+- STRANGER
+- Vicboss
+- tone
+- moscaflaca
 
 </details>
 
@@ -799,9 +828,9 @@
 - tone
 - Swagger
 - Grimbold
+- Flatty93
 - starkgate
 - Burninator
-- Flatty93
 
 </details>
 
@@ -815,35 +844,44 @@
 
 <details><summary>Texts and descriptions</summary>
 
-- Maurits
-- Mausolos
-- Galvanized Iron Raptor
-- Genava55
 - Jorellaf
+- Mausolos
+- Maurits
+- Galvanized Iron Raptor
+- Boots
+- Caligula Caesar
+- jottel
+- Genava55
 - Rex_Basiliscus
 
 </details>
 
 <details><summary>History and research</summary>
 
-- Mausolos
 - Jorellaf
+- Mausolos
 - Maurits
+- Rex_Basiliscus
 - Genava55
 - Galvanized Iron Raptor
-- Rex_Basiliscus
-- Leveller
 - Drtad
+- Leveller
+- jottel
+- Quinn_Inuit
+- Ray245
 
 </details>
 
 <details><summary>Interface, unit cards, banners and menus</summary>
 
-- starkgate
-- tone
 - Ahowl11
+- tone
 - Jorellaf
+- Apple
+- NakedSpur
+- jangeest
 - Igorche81
+- starkgate
 - Burninator
 - CaiusAntonius
 
@@ -851,18 +889,19 @@
 
 <details><summary>Battle maps, terrain, weather and vegetation</summary>
 
-- Swagger
 - tone
+- Swagger
+- Muizer
 
 </details>
 
 <details><summary>Music and sound</summary>
 
 - Apple
-- starkgate
 - Sgt. Skillz
-- Tyler Cunningham
 - Saxon
+- Tyler Cunningham
+- starkgate
 
 </details>
 
@@ -874,33 +913,41 @@
 
 <details><summary>Testing</summary>
 
-- moscaflaca
+- Jorellaf
 - Apple
-- Tedric
-- Primo
+- Lvcke
+- moscaflaca
+- Sgt. Skillz
+- Densus
+- STRANGER
+- Vicboss
 - Regan
 - SaulTyre
-- Vicboss
 - Neep
+- Algerian Polak
+- Basileus Alexios
+- Malicemane
+- milkerman
+- The Shark
+- tungri_centurio
+- Tedric
+- Primo
 - Columcille
 - Mart br
-- Algerian Polak
 - Valorix
 - Cao Cao
-- Malicemane
 - Pyrrhus
 - WalterND14
 - BpkSoeharto
-- Jorellaf
 
 </details>
 
 <details><summary>Community and public relations</summary>
 
 - Apple
+- moscaflaca
 - Maurits
 - AmyClaraRose
-- moscaflaca
 - Jorellaf
 
 </details>
@@ -914,6 +961,12 @@
 - Apple
 - Lord Drake
 - AmyClaraRose
+
+</details>
+
+<details><summary>Factions and campaign setup</summary>
+
+- Apple
 
 </details>
 
@@ -990,6 +1043,7 @@
 - tone
 - Jorellaf
 - Igorche81
+- Apple
 
 </details>
 
@@ -1272,6 +1326,17 @@
 - jazzpirat
 - Bugs Bunny
 - Alexander the Great
+- Sgt. Skillz
+- puns (canon edit)
+- UseTheForca
+- legend87
+- TheKhan14
+- Igorche81
+- ghostbuster
+- Cpt_Krunch
+- Primo
+- kylan271
+- Jackasaurus☘
 
 </details>
 
