@@ -55,295 +55,213 @@
 - Grimbold
 - moscaflaca
 
-## Work in the repository
+## v0.7
 
 <details><summary>Factions and campaign setup</summary>
 
-- Ahowl11 _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- Apple _(2022–2026)_
-- Luis _(2023–2025)_
-- philliparnvig _(2026)_
-- Lusitanio _(2023–2026)_
-- exi _(2022–2026)_
-- moscaflaca _(2022–2023)_
-- Swagger _(2022–2023)_
-- tone _(2022–2026)_
-- Balbor _(2022–2026)_
-- Hadrian _(2026)_
-- Patrick _(2022–2023)_
-- Lvcke _(2022)_
-- Zeus Nikephoros _(2022–2023)_
-- Logis0550 _(2022–2023)_
-- knorr _(2022–2026)_
-- GIR _(2026)_
-- Dementive _(2023)_
-- Wopper _(2025)_
-- Mitchell _(2023)_
-- zuzaman _(2023)_
-- NakedSpur _(2022–2026)_
-- capy_the_bara _(2025)_
-- Hans Erik _(2026)_
-- Landerote _(2023)_
-- ortiga _(2022–2025)_
+- Ahowl11
+- Apple
+- Jorellaf
+- philliparnvig
+- Luis
+- Lusitanio
+- Balbor
+- Hadrian
+- exi
+- GIR
+- knorr
+- Wopper
+- tone
+- capy_the_bara
+- Hans Erik
+- NakedSpur
 
 </details>
 
 <details><summary>Campaign map</summary>
 
-- Jorellaf _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- Apple _(2022–2026)_
-- exi _(2022–2026)_
-- Swagger _(2022–2023)_
-- Lusitanio _(2023–2026)_
-- Luis _(2023–2025)_
-- knorr _(2022–2026)_
-- Balbor _(2022–2026)_
-- Zeus Nikephoros _(2022–2023)_
-- philliparnvig _(2026)_
-- tone _(2022–2026)_
-- Hadrian _(2026)_
-- moscaflaca _(2022–2023)_
-- Lvcke _(2022)_
-- NakedSpur _(2022–2026)_
-- capy_the_bara _(2025)_
-- Dementive _(2023)_
-- Landerote _(2023)_
-- ortiga _(2022–2025)_
-- Luis G. _(2025)_
+- Jorellaf
+- Ahowl11
+- Apple
+- Lusitanio
+- Luis
+- exi
+- Balbor
+- philliparnvig
+- knorr
+- Hadrian
+- capy_the_bara
+- NakedSpur
+- tone
+- Luis G.
 
 </details>
 
 <details><summary>Campaign scripts and events</summary>
 
-- Ahowl11 _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- Apple _(2022–2026)_
-- philliparnvig _(2026)_
-- Maurits _(2022–2026)_
-- Luis _(2023–2025)_
-- Patrick _(2022–2023)_
-- Dementive _(2023)_
-- exi _(2022–2026)_
-- Lusitanio _(2023–2026)_
-- zuzaman _(2023)_
-- Zeus Nikephoros _(2022–2023)_
-- Mitchell _(2023)_
-- Swagger _(2022–2023)_
-- tone _(2022–2026)_
-- moscaflaca _(2022–2023)_
-- Hadrian _(2026)_
-- Lvcke _(2022)_
+- Ahowl11
+- Apple
+- philliparnvig
+- Jorellaf
+- Luis
+- Lusitanio
+- exi
+- Hadrian
+- tone
 
 </details>
 
 <details><summary>Campaign AI</summary>
 
-- GIR _(2026)_
-- Apple _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- philliparnvig _(2026)_
-- Jorellaf _(2022–2026)_
-- tone _(2022–2026)_
-- exi _(2022–2026)_
-- Swagger _(2022–2023)_
-- Lvcke _(2022)_
-- moscaflaca _(2022–2023)_
+- GIR
+- Apple
+- philliparnvig
+- Ahowl11
+- exi
+- Jorellaf
 
 </details>
 
 <details><summary>Units</summary>
 
-- Ahowl11 _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- GIR _(2026)_
-- tone _(2022–2026)_
-- Lvcke _(2022)_
-- Luis _(2023–2025)_
-- Apple _(2022–2026)_
-- exi _(2022–2026)_
-- moscaflaca _(2022–2023)_
-- philliparnvig _(2026)_
-- Swagger _(2022–2023)_
-- Logis0550 _(2022–2023)_
-- Refract _(2022–2023)_
+- GIR
+- Ahowl11
+- Jorellaf
+- Luis
+- tone
+- Apple
+- philliparnvig
 
 </details>
 
 <details><summary>Unit models, textures and animations</summary>
 
-- Balbor _(2022–2026)_
-- exi _(2022–2026)_
-- tone _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- Apple _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- knorr _(2022–2026)_
-- Lvcke _(2022)_
-- GIR _(2026)_
-- Swagger _(2022–2023)_
-- ortiga _(2022–2025)_
-- Luis _(2023–2025)_
-- NakedSpur _(2022–2026)_
-- Landerote _(2023)_
-- Refract _(2022–2023)_
+- Balbor
+- Ahowl11
+- exi
+- tone
+- Apple
+- GIR
+- knorr
+- Luis
+- ortiga
+- Jorellaf
+- NakedSpur
 
 </details>
 
 <details><summary>Buildings and settlements</summary>
 
-- Ahowl11 _(2022–2026)_
-- Luis _(2023–2025)_
-- Lusitanio _(2023–2026)_
-- exi _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- Swagger _(2022–2023)_
-- Apple _(2022–2026)_
-- tone _(2022–2026)_
-- Lvcke _(2022)_
-- Hadrian _(2026)_
-- moscaflaca _(2022–2023)_
-- philliparnvig _(2026)_
-- zuzaman _(2023)_
-- Zeus Nikephoros _(2022–2023)_
-- knorr _(2022–2026)_
-- Refract _(2022–2023)_
-- NakedSpur _(2022–2026)_
-- Patrick _(2022–2023)_
+- Luis
+- Ahowl11
+- Apple
+- Lusitanio
+- exi
+- Hadrian
+- Jorellaf
+- philliparnvig
 
 </details>
 
 <details><summary>Traits and ancillaries</summary>
 
-- Lusitanio _(2023–2026)_
-- Jorellaf _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- Apple _(2022–2026)_
-- Luis _(2023–2025)_
-- tone _(2022–2026)_
-- philliparnvig _(2026)_
-- Swagger _(2022–2023)_
-- exi _(2022–2026)_
-- Lvcke _(2022)_
-- moscaflaca _(2022–2023)_
-- GIR _(2026)_
-- Maurits _(2022–2026)_
+- Lusitanio
+- Jorellaf
+- Apple
+- Luis
+- Ahowl11
+- philliparnvig
+- exi
+- tone
+- GIR
 
 </details>
 
 <details><summary>Texts and descriptions</summary>
 
-- Ahowl11 _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- Maurits _(2022–2026)_
-- Lusitanio _(2023–2026)_
-- Luis _(2023–2025)_
-- Apple _(2022–2026)_
-- tone _(2022–2026)_
-- Lvcke _(2022)_
-- GIR _(2026)_
-- philliparnvig _(2026)_
-- exi _(2022–2026)_
-- Hadrian _(2026)_
-- moscaflaca _(2022–2023)_
-- Zeus Nikephoros _(2022–2023)_
-- Logis0550 _(2022–2023)_
-- Dementive _(2023)_
-- Swagger _(2022–2023)_
-- Balbor _(2022–2026)_
-- capy_the_bara _(2025)_
-- Patrick _(2022–2023)_
-- Refract _(2022–2023)_
+- Lusitanio
+- Jorellaf
+- Maurits
+- Ahowl11
+- Luis
+- Apple
+- GIR
+- philliparnvig
+- Hadrian
+- tone
+- exi
+- Balbor
+- capy_the_bara
 
 </details>
 
 <details><summary>Interface, unit cards, banners and menus</summary>
 
-- Ahowl11 _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- Apple _(2022–2026)_
-- knorr _(2022–2026)_
-- Swagger _(2022–2023)_
-- exi _(2022–2026)_
-- Balbor _(2022–2026)_
-- moscaflaca _(2022–2023)_
-- Luis _(2023–2025)_
-- tone _(2022–2026)_
-- Lusitanio _(2023–2026)_
-- Lvcke _(2022)_
-- GIR _(2026)_
-- NakedSpur _(2022–2026)_
-- ortiga _(2022–2025)_
-- Dementive _(2023)_
-- Eduardo _(2025–2026)_
-- Logis0550 _(2022–2023)_
-- Hadrian _(2026)_
-- Landerote _(2023)_
+- Ahowl11
+- Apple
+- Jorellaf
+- Balbor
+- Luis
+- knorr
+- Lusitanio
+- GIR
+- tone
+- Eduardo
+- Hadrian
+- NakedSpur
+- ortiga
 
 </details>
 
 <details><summary>Battle maps, terrain, weather and vegetation</summary>
 
-- Jorellaf _(2022–2026)_
-- Swagger _(2022–2023)_
-- Ahowl11 _(2022–2026)_
-- Eduardo _(2025–2026)_
-- tone _(2022–2026)_
-- Apple _(2022–2026)_
-- Lvcke _(2022)_
-- GIR _(2026)_
+- Jorellaf
+- Eduardo
+- Ahowl11
+- Apple
+- GIR
+- tone
 
 </details>
 
 <details><summary>Music and sound</summary>
 
-- Jorellaf _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- Apple _(2022–2026)_
-- Lvcke _(2022)_
-- Swagger _(2022–2023)_
+- Ahowl11
+- Jorellaf
+- Apple
 
 </details>
 
 <details><summary>Campaign variants (Four Romans, Light, Classic)</summary>
 
-- Apple _(2022–2026)_
-- Ahowl11 _(2022–2026)_
-- philliparnvig _(2026)_
-- Jorellaf _(2022–2026)_
-- Luis _(2023–2025)_
-- Lusitanio _(2023–2026)_
-- Hadrian _(2026)_
-- Swagger _(2022–2023)_
-- capy_the_bara _(2025)_
+- Apple
+- Ahowl11
+- philliparnvig
+- Luis
+- Lusitanio
+- Jorellaf
+- Hadrian
+- capy_the_bara
 
 </details>
 
 <details><summary>Tools</summary>
 
-- Apple _(2022–2026)_
-- Jorellaf _(2022–2026)_
-- tone _(2022–2026)_
-- Luis _(2023–2025)_
-- Ahowl11 _(2022–2026)_
-- Lvcke _(2022)_
-- Swagger _(2022–2023)_
-- daedsidog _(2022)_
-- Eduardo _(2025–2026)_
-- moscaflaca _(2022–2023)_
-- philliparnvig _(2026)_
-- Lusitanio _(2023–2026)_
-- exi _(2022–2026)_
-- Logis0550 _(2022–2023)_
-- Refract _(2022–2023)_
+- Apple
+- Luis
+- Jorellaf
+- Eduardo
+- Ahowl11
+- philliparnvig
+- Lusitanio
+- exi
 
 </details>
 
 <details><summary>Wiki</summary>
 
-- Apple _(2022–2026)_
-- Jorellaf _(2022–2026)_
+- Apple
+- Jorellaf
 
 </details>
 
