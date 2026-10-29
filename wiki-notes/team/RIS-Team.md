@@ -6,20 +6,20 @@
 
 - Ahowl11
 - Apple
+- Wopper
 - Jorellaf
-- philliparnvig
-- Luis
+- BiggusDickus
 - Lusitanio
 - Balbor
 - Hadrian
 - exi
 - GIR
 - knorr
-- Wopper
 - tone
 - capy_the_bara
-- Hans Erik
+- Lollygagging
 - NakedSpur
+- Luis G.
 
 </details>
 
@@ -29,16 +29,15 @@
 - Ahowl11
 - Apple
 - Lusitanio
-- Luis
 - exi
+- BiggusDickus
 - Balbor
-- philliparnvig
+- Wopper
 - knorr
 - Hadrian
+- tone
 - capy_the_bara
 - NakedSpur
-- tone
-- Luis G.
 
 </details>
 
@@ -46,9 +45,9 @@
 
 - Ahowl11
 - Apple
-- philliparnvig
+- Wopper
 - Jorellaf
-- Luis
+- BiggusDickus
 - Lusitanio
 - exi
 - Hadrian
@@ -60,9 +59,9 @@
 
 - GIR
 - Apple
-- philliparnvig
-- Ahowl11
+- Wopper
 - exi
+- Ahowl11
 - Jorellaf
 
 </details>
@@ -72,10 +71,10 @@
 - GIR
 - Ahowl11
 - Jorellaf
-- Luis
+- BiggusDickus
 - tone
 - Apple
-- philliparnvig
+- Wopper
 
 </details>
 
@@ -88,7 +87,7 @@
 - Apple
 - GIR
 - knorr
-- Luis
+- BiggusDickus
 - ortiga
 - Jorellaf
 - NakedSpur
@@ -97,14 +96,15 @@
 
 <details><summary>Buildings and settlements</summary>
 
-- Luis
+- BiggusDickus
 - Ahowl11
 - Apple
-- Lusitanio
 - exi
+- Lusitanio
 - Hadrian
 - Jorellaf
-- philliparnvig
+- Wopper
+- GIR
 
 </details>
 
@@ -113,9 +113,9 @@
 - Lusitanio
 - Jorellaf
 - Apple
-- Luis
+- BiggusDickus
 - Ahowl11
-- philliparnvig
+- Wopper
 - exi
 - tone
 - GIR
@@ -128,10 +128,10 @@
 - Jorellaf
 - Maurits
 - Ahowl11
-- Luis
+- BiggusDickus
 - Apple
 - GIR
-- philliparnvig
+- Wopper
 - Hadrian
 - tone
 - exi
@@ -146,7 +146,7 @@
 - Apple
 - Jorellaf
 - Balbor
-- Luis
+- BiggusDickus
 - knorr
 - Lusitanio
 - GIR
@@ -162,10 +162,10 @@
 
 - Jorellaf
 - Eduardo
+- tone
 - Ahowl11
 - Apple
 - GIR
-- tone
 
 </details>
 
@@ -181,11 +181,11 @@
 
 - Apple
 - Ahowl11
-- philliparnvig
-- Luis
+- Wopper
 - Lusitanio
-- Jorellaf
+- BiggusDickus
 - Hadrian
+- Jorellaf
 - capy_the_bara
 
 </details>
@@ -193,11 +193,11 @@
 <details><summary>Tools</summary>
 
 - Apple
-- Luis
+- BiggusDickus
 - Jorellaf
-- Eduardo
 - Ahowl11
-- philliparnvig
+- Eduardo
+- Wopper
 - Lusitanio
 - exi
 
@@ -226,7 +226,7 @@
 
 - Ahowl11
 - Jorellaf
-- Luis
+- BiggusDickus
 - exi
 - Lusitanio
 - Dementive
@@ -244,7 +244,7 @@
 - Jorellaf
 - Ahowl11
 - exi
-- Luis
+- BiggusDickus
 - Swagger
 - Lusitanio
 - Dementive
@@ -283,7 +283,7 @@
 
 - Ahowl11
 - Jorellaf
-- Luis
+- BiggusDickus
 - tone
 - moscaflaca
 
@@ -328,14 +328,13 @@
 - Lusitanio
 - Ahowl11
 - exi
-- Luis
+- BiggusDickus
 - Jorellaf
 - moscaflaca
 - Refract
 - Zeus Nikephoros
 - Swagger
 - zuzaman
-- Biggus Dickus
 
 </details>
 
@@ -353,7 +352,7 @@
 - Jorellaf
 - Lusitanio
 - Maurits
-- Luis
+- BiggusDickus
 - Dementive
 - exi
 - moscaflaca
@@ -363,7 +362,6 @@
 - Genava55
 - Galvanized Iron Raptor
 - Rex
-- Biggus Dickus
 - Ray245
 - Caligula Caesar
 
@@ -427,7 +425,7 @@
 <details><summary>Tools</summary>
 
 - Jorellaf
-- Luis
+- BiggusDickus
 - Swagger
 - Ahowl11
 - Landerote
