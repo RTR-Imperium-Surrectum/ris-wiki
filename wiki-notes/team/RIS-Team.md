@@ -19,7 +19,6 @@
 - capy_the_bara
 - Lollygagging
 - NakedSpur
-- Luis G.
 
 </details>
 
