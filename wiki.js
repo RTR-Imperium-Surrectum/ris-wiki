@@ -68,7 +68,10 @@
         // drop "grp", which marks where a GROUP starts and is re-applied when dealing.
         klass.push(hc[k] ? hc[k].className.replace(/grp/, "").trim() : "");
       }
-      var rows = [];
+      // Groups are dealt DOWN (see dealDown on the server): read each group's column of rows,
+      // then put the groups back end to end, and the list is in its own order again.
+      var groups = [];
+      for (var g0 = 0; g0 < up; g0++) groups.push([]);
       [].forEach.call(t.tBodies[0].rows, function(r){
         for (var g = 0; g < up; g++) {
           var cells = [], any = false;
@@ -78,9 +81,10 @@
             if (c && c.innerHTML.replace(/s|&nbsp;/g, "")) any = true;
           }
           // Padding cells from the previous deal are dropped rather than kept as blank rows.
-          if (any) rows.push(cells);
+          if (any) groups[g].push(cells);
         }
       });
+      var rows = [].concat.apply([], groups);
       return { t: t, cols: cols, head: head, klass: klass, rows: rows };
     }
 
@@ -95,10 +99,12 @@
         th += cell("th", g < d.rows.length ? d.head[k] : "", k, g > 0);
       }
       var body = "", n = Math.ceil(d.rows.length / up);
+      var base = Math.floor(d.rows.length / up), extra = d.rows.length % up;
       for (r = 0; r < n; r++) {
         body += "<tr>";
         for (g = 0; g < up; g++) {
-          var row = d.rows[r * up + g];
+          // Down each group, the first "extra" groups one row longer: dealDown on the server.
+          var row = r < base + (g < extra ? 1 : 0) ? d.rows[g * base + Math.min(g, extra) + r] : null;
           for (k = 0; k < d.cols; k++) body += cell("td", row ? row[k] : "", k, g > 0);
         }
         body += "</tr>";
