@@ -1,0 +1,277 @@
+#!/usr/bin/env node
+// Sync "Team notes" from the GitHub wiki into the published site's notes folder.
+//
+//   node scripts/sync-wiki-notes.js <wiki-clone> <site-repo>
+//
+// Runs in CI on the `gollum` event (a wiki edit). It does NOT rebuild the site: the
+// 222 MB of RIS source lives on rtris.org, which a GitHub runner cannot reach. It
+// writes each note as a small pre-rendered fragment which the site loads at view
+// time, so a note reaches the site without regenerating 4,332 pages.
+//
+// The fragment is rendered with the SITE'S OWN renderer, required from this repo —
+// never a second markdown implementation, which would agree on the day it was
+// written and drift from then on.
+const fs = require('fs'), path = require('path');
+const { extractNotes, MENU_PAGE, isGuide, parseGuide, factionResolver, guideMarkdown, guideList, resolveWikiLinks } = require('./ris-wiki-notes.js');
+
+// serve-ris-wiki.js resolves its wiki root from process.argv AT LOAD TIME and exits(2) if
+// that directory is missing — defaulting to C:/RIS/_wiki, which exists on the machine
+// that generates the wiki and on no CI runner anywhere. Requiring it with an argv of our own
+// making points it at the wiki clone we do have. build-ris-wiki-site.js does the same thing
+// for the same reason; without it this script dies on a runner before it reads a single note.
+const { renderMarkdown } = (() => {
+  const real = process.argv;
+  process.argv = [real[0], real[1], '--out', process.argv[2] || '.', '--no-open'];
+  try { return require('./serve-ris-wiki.js'); } finally { process.argv = real; }
+})();
+
+const WIKI = process.argv[2];
+const SITE = process.argv[3];
+if (!WIKI || !SITE) {
+  console.error('usage: node scripts/sync-wiki-notes.js <wiki-clone> <site-repo>');
+  process.exit(1);
+}
+
+const mapFile = path.join(WIKI, 'page-map.json');
+if (!fs.existsSync(mapFile)) {
+  console.error('page-map.json missing from the wiki — re-run build-github-wiki.js and push it.');
+  process.exit(1);
+}
+const PAGE_MAP = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+
+// A wiki page name -> its path on the site (a generated page, or another team page).
+const WIKI_TARGET = (name) => PAGE_MAP[name] || (fs.existsSync(path.join(WIKI, name + '.md')) ? 'team/' + name : null);
+
+// Community guides (Guide-* pages): faction names in a guide's "Factions:" line resolve to a
+// faction by its token or its page title, read from the wiki's own factions-*.md pages.
+const RESOLVE = factionResolver(fs.readdirSync(WIKI).filter((f) => /^factions-.+\.md$/.test(f)).map((f) => {
+  const m = /^#\s+(.+)$/m.exec(fs.readFileSync(path.join(WIKI, f), 'utf8'));
+  return [f.slice('factions-'.length, -3), m ? m[1].replace(/<[^>]*>/g, '').trim() : null];
+}));
+
+// ── team pages on the site itself ───────────────────────────────────────────
+// A team page's HTML is written here too, not only its fragment: an edit then shows without
+// the page first flashing its old text, and a NEW page exists at all. A new page is cut from
+// an existing team page (same shell, stylesheet, menu, scripts): its <title>, and everything in
+// <main> after the breadcrumb, are replaced. The "Team pages" list and the index's count are
+// brought up to date. Needs team/ and team.html checked out (see the workflow).
+const TEAM_DIR = path.join(SITE, 'team');
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const titleOf = (page, body) => { const m = /^#\s+(.+)$/m.exec(body); return m ? m[1].trim() : page.replace(/-/g, ' '); };
+function writeTeamPage(page, body, html) {
+  if (!fs.existsSync(TEAM_DIR)) return null;               // site files not checked out: fragment only
+  const file = path.join(TEAM_DIR, page + '.html');
+  const isNew = !fs.existsSync(file);
+  const tplName = isNew ? fs.readdirSync(TEAM_DIR).find((f) => f.endsWith('.html')) : page + '.html';
+  if (!tplName) return null;
+  const tpl = fs.readFileSync(path.join(TEAM_DIR, tplName), 'utf8');
+  const main = /<main>(<div class="crumb">[\s\S]*?<\/div>)[\s\S]*?<\/main>/.exec(tpl);
+  if (!main) return null;
+  const title = titleOf(page, body);
+  let out = tpl.replace(main[0], '<main>' + main[1] + '<div class="lede">' + html + '</div></main>');
+  out = out.replace(/<title>[\s\S]*?<\/title>/, () => '<title>' + esc(title) + ' — RTR: Imperium Surrectum</title>');
+  out = out.replace(/href="https:\/\/github\.com\/(?:Tarnholm|RTR-Imperium-Surrectum)\/ris-wiki\/wiki\/[^"]*\/_edit"/, () => 'href="https://github.com/RTR-Imperium-Surrectum/ris-wiki/wiki/' + encodeURIComponent(page) + '/_edit"');
+  out = jumpFor(out, html);
+  fs.writeFileSync(file, out);
+  return isNew ? 'page created' : 'page rewritten';
+}
+// The template's section links are not this page's: they are made again from this page's own
+// headings, as the site build makes them (serve-ris-wiki.js jumpStrip: its H2s, else its H3s,
+// and only if there are two or more). Deleting the strip and keeping it out cost the guides
+// their Overview / Getting started / Tips links on every edit. The body's has-jump class goes
+// with the strip: it makes --topbar a strip taller, and with no strip the sticky menu sat at
+// the bar's foot until the page grew past it, then dropped by the strip's height (reported on
+// RIS Team 2026-10-28: the menu moved when a section was opened).
+function jumpFor(out, html) {
+  out = out.replace(/\n?\s*<div class="jump">[\s\S]*?<\/div>/, '');
+  const heads = (lv) => [...html.matchAll(new RegExp('<h' + lv + ' id="([^"]+)"[^>]*>([\\s\\S]*?)</h' + lv + '>', 'g'))]
+    .map((m) => [m[1], m[2].replace(/<[^>]*>/g, '').split('·')[0].trim()]);
+  const items = heads(2).length ? heads(2) : heads(3);
+  const strip = items.length >= 2 ? '<div class="jump">' + items.map(([id, t]) => '<a href="#' + id + '">' + t + '</a>').join('') + '</div>' : '';
+  // The strip is the bar's second row: the last thing inside .top, before the page's columns.
+  // The bar's closing tag is indented on pages the old strip-deleting code went through.
+  let placed = false;
+  if (strip) out = out.replace(/(\r?\n)[ \t]*<\/div>(\r?\n)<div class="wrap">/, (m, a, b) => { placed = true; return a + '  ' + strip + a + '</div>' + b + '<div class="wrap">'; });
+  // has-jump only when the strip is really there: set without one, it is the moving menu again.
+  out = out.replace(/<body([^>]*)>/, (m, attrs) => {
+    const cls = ((/class="([^"]*)"/.exec(attrs) || [])[1] || '').split(/\s+/).filter((x) => x && x !== 'has-jump');
+    if (placed) cls.push('has-jump');
+    const rest = attrs.replace(/\s*class="[^"]*"/, '');
+    return '<body' + rest + (cls.length ? ' class="' + cls.join(' ') + '"' : '') + '>';
+  });
+  return out;
+}
+function updateTeamLists() {
+  const hub = path.join(SITE, 'team.html');
+  if (!fs.existsSync(hub) || !fs.existsSync(TEAM_DIR)) return;
+  // A team page whose wiki page is gone is removed from the site. Retired generated pages
+  // (off-map regions, the old settlements and tags indexes) were caught here once as "team
+  // pages" while they briefly existed on the wiki outside page-map.json, and then stayed on the
+  // site's Team pages list for good (reported 2026-09-30).
+  for (const f of fs.readdirSync(TEAM_DIR)) {
+    const page = f.replace(/\.(html|txt)$/, '');
+    if (!fs.existsSync(path.join(WIKI, page + '.md'))) { fs.unlinkSync(path.join(TEAM_DIR, f)); console.log('removed team/' + f + '  (no such page on the wiki)'); }
+  }
+  // Guides have their own list (community-guides.html), so they are not repeated here.
+  const pages = fs.readdirSync(TEAM_DIR).filter((f) => f.endsWith('.html')).map((f) => f.slice(0, -5))
+    .filter((p) => !isGuide(p)).sort((a, b) => a.localeCompare(b));
+  const title = (p) => {
+    const md = path.join(WIKI, p + '.md');
+    return fs.existsSync(md) ? titleOf(p, fs.readFileSync(md, 'utf8')) : p.replace(/-/g, ' ');
+  };
+  // %27: an apostrophe in an href reads as an inline-script template to check-ris-wiki-site.js.
+  const list = '<ul>' + pages.map((p) => '<li><a href="team/' + encodeURIComponent(p).replace(/'/g, '%27') + '.html">' + esc(title(p)) + '</a></li>').join('') + '</ul>';
+  const t = fs.readFileSync(hub, 'utf8');
+  const u = t.replace(/(<h1 id="team-pages">[\s\S]*?<\/p>\n?)<ul>[\s\S]*?<\/ul>/, (m, head) => head + list);
+  if (u !== t) { fs.writeFileSync(hub, u); console.log('team.html list: ' + pages.length + ' pages'); }
+  for (const f of ['README.html', 'index.html']) {
+    const p = path.join(SITE, f);
+    if (!fs.existsSync(p)) continue;
+    const r = fs.readFileSync(p, 'utf8');
+    const v = r.replace(/(<a href="team\.html">Team pages<\/a>[^0-9<]*)\d+ pages? written by the team/, (m, a) => a + pages.length + (pages.length === 1 ? ' page' : ' pages') + ' written by the team');
+    if (v !== r) fs.writeFileSync(p, v);
+  }
+}
+
+const OUT = path.join(SITE, 'wiki-notes');
+fs.mkdirSync(OUT, { recursive: true });
+
+const before = new Set(fs.readdirSync(OUT).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)));
+const index = {};
+let written = 0, unchanged = 0, cleared = 0, unmapped = [];
+
+for (const f of fs.readdirSync(WIKI)) {
+  if (!f.endsWith('.md') || f.startsWith('_')) continue;
+  const page = f.slice(0, -3);
+  if (page === 'Home') continue;                 // Home mirrors README; notes belong on README
+  if (page === MENU_PAGE) continue;              // the side menu, handled below
+  const raw = fs.readFileSync(path.join(WIKI, f), 'utf8');
+
+  // A page no generator writes is a TEAM page: publish the whole of it, so an edit on the wiki
+  // shows on the site within minutes instead of waiting for a full local rebuild. The site's
+  // team/<page>.html swaps its body for this fragment when it loads.
+  if (!PAGE_MAP[page]) {
+    const body = raw.replace(/\r\n/g, '\n').trim();
+    if (!body) continue;
+    const key = 'team/' + page;
+    index[key] = key;
+    fs.mkdirSync(path.join(OUT, 'team'), { recursive: true });
+    const mdPath = path.join(OUT, key + '.md');
+    const prev = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf8').trim() : null;
+    if (prev === body) { unchanged++; continue; }
+    // A guide gets its header (factions, author, summary) and a link back to the list; on every
+    // team page, links written the wiki's way ([[Page]], [Label](Page-name)) become site links.
+    const shown = isGuide(page) ? guideMarkdown(parseGuide(page, body), RESOLVE, '../', '.html') : body;
+    const html = renderMarkdown(resolveWikiLinks(shown, WIKI_TARGET, '../', '.html'), []);
+    fs.writeFileSync(mdPath, body + '\n');
+    fs.writeFileSync(path.join(OUT, key + '.html'), html);
+    const made = writeTeamPage(page, body, html);
+    written++;
+    console.log((prev ? 'updated ' : 'new     ') + key + '  (team page' + (made ? ', ' + made : '') + ')');
+    continue;
+  }
+  const note = extractNotes(raw);
+  if (!note) continue;
+
+  const target = PAGE_MAP[page];
+
+  index[target] = page;
+  const mdPath = path.join(OUT, page + '.md');
+  const prev = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf8').trim() : null;
+  if (prev === note) { unchanged++; continue; }
+
+  fs.writeFileSync(mdPath, note + '\n');
+  fs.writeFileSync(path.join(OUT, page + '.html'), renderMarkdown(note, []));
+  written++;
+  console.log((prev ? 'updated ' : 'new     ') + page + '  -> ' + target);
+}
+
+// A note file whose wiki page still exists but no longer carries a note was cleared by a
+// person on purpose, so it goes. A note whose wiki page has vanished is LEFT ALONE — that
+// is a rename or a bad import, not someone asking for their writing to be deleted.
+for (const page of before) {
+  if (index[PAGE_MAP[page]] === page) continue;
+  if (!fs.existsSync(path.join(WIKI, page + '.md'))) {
+    console.log('kept    ' + page + '  (its wiki page is missing — not treating that as a delete)');
+    const target = PAGE_MAP[page];
+    if (target) index[target] = page;
+    continue;
+  }
+  for (const ext of ['.md', '.html']) {
+    const p = path.join(OUT, page + ext);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  }
+  cleared++;
+  console.log('cleared ' + page + '  (note removed in the wiki)');
+}
+
+fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify(index));
+// The Community guides list, read by community-guides.html when it loads.
+{
+  const guides = guideList(fs.readdirSync(WIKI).filter((f) => f.endsWith('.md') && isGuide(f.slice(0, -3)))
+    .map((f) => ({ name: f.slice(0, -3), md: fs.readFileSync(path.join(WIKI, f), 'utf8') })), RESOLVE);
+  const gf = path.join(OUT, 'guides.json'), next = JSON.stringify(guides);
+  if (!fs.existsSync(gf) || fs.readFileSync(gf, 'utf8') !== next) { fs.writeFileSync(gf, next); console.log('guides: ' + guides.length); }
+}
+updateTeamLists();
+// Every team page's section links checked against its own text, not only the pages edited in
+// this run: a page published before jumpFor existed kept the template's has-jump with no strip.
+if (fs.existsSync(TEAM_DIR)) for (const f of fs.readdirSync(TEAM_DIR).filter((x) => x.endsWith('.html'))) {
+  const frag = path.join(OUT, 'team', f);
+  if (!fs.existsSync(frag)) continue;
+  const file = path.join(TEAM_DIR, f), was = fs.readFileSync(file, 'utf8');
+  const now = jumpFor(was, fs.readFileSync(frag, 'utf8'));
+  if (now !== was) { fs.writeFileSync(file, now); console.log('section links: team/' + f); }
+}
+writeMenu();
+
+/**
+ * The side menu's team-edited part. Site-Menu.md on the wiki:
+ *   ## Section heading          a section; one that matches an existing heading adds to it
+ *   - [Label](Page)             a link: a wiki page name (team or generated), a site path
+ *   - [[Page]] / [[Label|Page]]   like "factions/rome", or a full https:// address
+ * Written to wiki-notes/menu.json as [{heading, items:[{label, href}]}], href relative to
+ * the site root without ".html" (or absolute for an external link).
+ */
+function writeMenu() {
+  const f = path.join(WIKI, MENU_PAGE + '.md');
+  const out = path.join(OUT, 'menu.json');
+  if (!fs.existsSync(f)) { if (fs.existsSync(out)) fs.unlinkSync(out); return; }
+  const resolve = (target) => {
+    const t = target.trim().replace(/\.(md|html)$/i, '');
+    if (/^https?:\/\//i.test(t)) return t;
+    const flat = t.replace(/ /g, '-');
+    if (PAGE_MAP[flat]) return PAGE_MAP[flat];                              // generated page by wiki name
+    if (fs.existsSync(path.join(WIKI, flat + '.md'))) return 'team/' + flat; // team page by wiki name
+    return t.replace(/^\/+/, '');                                           // a site path as written
+  };
+  const sections = [];
+  let cur = null;
+  // The page's own instructions sit in an HTML comment; they are not menu entries.
+  for (const raw of fs.readFileSync(f, 'utf8').replace(/<!--[\s\S]*?-->/g, '').split(/\r?\n/)) {
+    const line = raw.trim();
+    let m;
+    if ((m = /^#{1,3}\s+(.+)$/.exec(line))) { cur = { heading: m[1].trim(), items: [] }; sections.push(cur); continue; }
+    if (!cur || !/^[-*]\s+/.test(line)) continue;
+    const item = line.replace(/^[-*]\s+/, '');
+    if ((m = /^\[([^\]]+)\]\(([^)]+)\)/.exec(item))) cur.items.push({ label: m[1].trim(), href: resolve(m[2]) });
+    else if ((m = /^\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/.exec(item))) {
+      // Gollum writes [[Label|Page]]; take whichever side names a page.
+      const a = m[1].trim(), b = (m[2] || '').trim();
+      const page = b && (PAGE_MAP[b.replace(/ /g, '-')] || fs.existsSync(path.join(WIKI, b.replace(/ /g, '-') + '.md'))) ? b : (b ? a : a);
+      const label = page === a ? (b || a) : a;
+      cur.items.push({ label, href: resolve(page) });
+    }
+  }
+  const menu = sections.filter((s) => s.items.length);
+  const prev = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const next = JSON.stringify(menu);
+  if (prev !== next) { fs.writeFileSync(out, next); console.log('menu: ' + menu.length + ' section(s), ' + menu.reduce((n, s) => n + s.items.length, 0) + ' link(s)'); }
+}
+
+console.log('');
+console.log('notes written:   ' + written);
+console.log('notes unchanged: ' + unchanged);
+console.log('notes cleared:   ' + cleared);
+console.log('pages with notes: ' + Object.keys(index).length);
+if (unmapped.length) console.log('unmapped pages:  ' + unmapped.length + ' (' + unmapped.slice(0, 5).join(', ') + ')');

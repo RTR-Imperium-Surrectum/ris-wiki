@@ -4,6 +4,10 @@
 # rebuild the site — that needs 222 MB of RIS source on rtris.org, which a runner cannot
 # reach — so it publishes each note as a small pre-rendered fragment under wiki-notes/,
 # which every page fetches for itself at view time. Pushing here redeploys Pages.
+#
+# The scripts live in .github/scripts (copied from Provincia's scripts/: sync-wiki-notes.js,
+# ris-wiki-notes.js, serve-ris-wiki.js, lib/wikiNav.js) since the Provincia source went private on 8 Nov.
+# Copy them again here whenever they change there.
 name: Publish wiki notes
 
 on:
@@ -36,15 +40,12 @@ jobs:
       - name: Check out the wiki
         run: git clone --depth 1 https://github.com/${{ github.repository }}.wiki.git wiki
 
-      - name: Check out the build scripts
-        run: git clone --depth 1 https://github.com/Tarnholm/Provincia.git provincia
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Sync notes
-        run: node provincia/scripts/sync-wiki-notes.js wiki .
+        run: node .github/scripts/sync-wiki-notes.js wiki .
 
       - name: Commit and push if anything changed
         run: |

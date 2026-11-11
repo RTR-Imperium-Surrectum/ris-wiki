@@ -1,0 +1,1687 @@
+#!/usr/bin/env node
+/**
+ * Serve the RIS wiki locally, rendering the markdown so it reads like a site rather than a
+ * folder of text files.
+ *
+ *   node scripts/serve-ris-wiki.js [--out <dir>] [--port 8099]
+ *
+ * A plain file server is not enough: browsers show a .md file as plain text, and the wiki is
+ * mostly tables. So markdown is converted on the fly. No dependencies — nothing is installed
+ * in this repo and a preview tool is not worth adding one.
+ *
+ * The renderer covers what these pages actually use (headings, tables, links, images,
+ * blockquotes, lists, bold/italic, inline code, and the raw HTML the generators embed for
+ * cards and <details> blocks) rather than all of CommonMark. Anything it does not recognise
+ * passes through as text, so an unhandled construct looks plain rather than disappearing.
+ *
+ * Search is server-side over a title index built at startup: 2,700 pages is small enough to
+ * scan in memory, and that avoids shipping a search bundle for a preview tool.
+ */
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+
+const argv = process.argv.slice(2);
+const valOf = (f, d) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : d; };
+const ROOT = path.resolve(valOf("--out", "C:/RIS/_wiki"));
+const PORT = parseInt(valOf("--port", "8099"), 10);
+
+if (!fs.existsSync(ROOT)) { console.error(`wiki not found: ${ROOT}`); process.exit(2); }
+
+const MIME = {
+  ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif",
+  ".svg": "image/svg+xml", ".html": "text/html; charset=utf-8", ".json": "application/json",
+  ".css": "text/css", ".js": "text/javascript",
+};
+
+const esc = (s) => String(s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// ── search index ─────────────────────────────────────────────────────────────
+// Built once at startup: every .md page with its H1. Cheap enough (~2,700 files) that it is
+// not worth watching for changes, and a regenerated wiki is a server restart away.
+const INDEX = [];
+(function indexPages(dir) {
+  let entries = [];
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  for (const e of entries) {
+    const p = path.join(dir, e.name);
+    // v/ holds the campaign variants' own pages: reached by the campaign buttons, not search.
+    if (e.isDirectory() && e.name === "v" && path.resolve(dir) === path.resolve(ROOT)) continue;
+    if (e.isDirectory()) { indexPages(p); continue; }
+    if (!/\.md$/i.test(e.name)) continue;
+    let title = e.name.replace(/\.md$/i, "");
+    try {
+      const head = fs.readFileSync(p, "utf8").slice(0, 400);
+      const m = /^#\s+(.+)$/m.exec(head);
+      if (m) title = m[1].trim();
+    } catch { /* keep the filename */ }
+    const rel = "/" + path.relative(ROOT, p).split(path.sep).join("/");
+    INDEX.push({ title, rel, section: rel.split("/")[1] === path.basename(rel) ? "overview" : rel.split("/")[1] });
+  }
+})(ROOT);
+
+function search(q) {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return [];
+  const hits = [];
+  for (const e of INDEX) {
+    const t = e.title.toLowerCase();
+    if (t === needle) hits.push({ ...e, score: 0 });
+    else if (t.startsWith(needle)) hits.push({ ...e, score: 1 });
+    else if (t.includes(needle)) hits.push({ ...e, score: 2 });
+    else if (e.rel.toLowerCase().includes(needle)) hits.push({ ...e, score: 3 });
+  }
+  return hits.sort((a, b) => a.score - b.score || a.title.localeCompare(b.title)).slice(0, 200);
+}
+
+// ── markdown ─────────────────────────────────────────────────────────────────
+// Inline spans. Images before links, since ![]() also matches []().
+// Where row r of group g comes from when n entries are dealt UP groups across, filled down each
+// group: the first n % UP groups take one entry more. -1 for an empty slot. The browser's
+// re-deal below does the same sum.
+function dealDown(n, up) {
+  const base = Math.floor(n / up), extra = n % up;
+  return (r, g) => (r < base + (g < extra ? 1 : 0) ? g * base + Math.min(g, extra) + r : -1);
+}
+
+function inline(s) {
+  let t = esc(s);
+  // Restore the raw HTML the generators embed: <img> on region and unit pages, and the <a>
+  // that wraps a unit's roster card so a click shows its info card.
+  t = t.replace(/&lt;img([^&]*?)&gt;/g, "<img$1>");
+  t = t.replace(/&lt;a\s([^&]*?)&gt;/g, "<a $1>").replace(/&lt;\/a&gt;/g, "</a>");
+  t = t.replace(/&lt;(\/?)(strong|em|ins|code|br|sub|sup)&gt;/g, "<$1$2>");
+  t = t.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+  t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, src) => `<img src="${src}" alt="${a}">`);
+  t = t.replace(/\[([^\]]*)\]\(([^)\s]+)\)/g, (_, txt, href) => `<a href="${href}">${txt}</a>`);
+  t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  t = t.replace(/(^|\s)_([^_]+)_/g, "$1<em>$2</em>");
+  t = t.replace(/\\\|/g, "|");
+  return t;
+}
+
+// Block-level raw HTML the pages use for collapsible sections. Emitted verbatim, with the
+// markdown inside still processed — the faction pages put tables inside <details>, and
+// escaping these printed a literal "<details>" above every folded block.
+// Matches a bare open/close tag on its own line AND a complete one-line <summary>…</summary>,
+// which is how the faction pages write their fold labels. Without the second form the label
+// rendered as a literal "&lt;summary&gt;…" line above every collapsible table.
+// The third form is `<details><summary>…</summary>` all on ONE line. Without it that line is
+// not a block, so it goes through the paragraph path, gets escaped, and the reader sees the tags
+// as text — which is exactly what happened on 60 region pages before anyone noticed.
+// `<a class="vid" ...>...</a>` is one card of the community-videos or diaries grid, one per line.
+// `<div class="ptabs">…</div>` is a tab strip on one line (All factions | Remastered).
+const RAW_BLOCK = /^\s*(<a class="vid"[^>]*>.*<\/a>|<div class="(?:ptabs|ctabs)">.*<\/div>|<\/?(?:details|summary|div|p|br|hr)\b[^>]*>|<summary[^>]*>.*<\/summary>|<details\b[^>]*><summary[^>]*>.*<\/summary>)\s*$/i;
+
+function slugId(s) {
+  return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+// ── two-column layout, done by distribution rather than by grid ───────────────
+// Sections sit side by side on a wide screen instead of stacking down one narrow column with
+// the rest of the monitor empty. HOW they are placed is the thing that took four attempts.
+//
+// A CSS grid was the obvious answer and is the wrong one. Grid ROWS align: a row cannot end
+// until its tallest item does, so a short section beside a tall one leaves its column empty
+// for the tall one's full height AND holds the next row back. Measured on the served pages,
+// section heights here are not merely unequal, they are unequal by two orders of magnitude —
+// a faction page carries a 7-row settlement table, an 8-row character table and a 449-row
+// roster in the same grid; a region page a 5-row trade table beside a 13-row attribute table.
+// That produced a screen-height empty band on faction, region and unit pages in turn, and
+// three separate "fixes" only moved the band somewhere else.
+//
+// So the columns are built here, as two independent normal-flow blocks, and each section is
+// assigned to one of them. Nothing row-aligns, so no section waits for a neighbour. The cost
+// is that the split is decided from an ESTIMATE of each section's height rather than the real
+// thing, and that the reading order becomes down-then-across.
+//
+// CSS multi-column (`column-width` + `break-inside:avoid`) would also avoid row coupling, but
+// `break-inside:avoid` is a hint: a section taller than the balanced column height gets split
+// across columns anyway, and the 449-row roster and the long unit descriptions are exactly
+// that case. Distribution has no such failure mode.
+//
+// One family of pages opts out of all of it. A building chain page is a SEQUENCE — level 1,
+// then level 2, then level 3 — and distribution is a balance, not an order: on a five-level
+// chain it put levels 1, 4 and 5 down the left pane and 2 and 3 down the right, so the page
+// read t1, t2 / t4, t3 / t5. Nothing inside the balancer can fix that, because any two-column
+// layout reads down-then-across and here the order IS the content. So these pages stack: one
+// card per level, each the full width of the page. The community videos are the same case: one
+// section per year, newest first, and dealing them into panes put 2023 beside 2026 (the diaries too).
+const SINGLE_COLUMN = /(^|\/)buildings\/[^/]+\.md$|(^|\/)(community-videos|diaries)\.md$/i;
+
+function sectionise(html, rel) {
+  const parts = html.split(/(?=<h2 )/);
+  if (parts.length < 2) return html;
+  const lede = parts[0].trim();
+  const secs = parts.slice(1).map((s) => s.trim()).filter(Boolean);
+
+  // Does this section's table need the whole width? COLUMN COUNT is the wrong test and was
+  // costing the faction pages half their screen: Starting settlements has five columns, but they
+  // are "large town", "3,500", "12 buildings" — the whole table is about 70 characters across and
+  // fits a half-width column with room to spare. Counting columns sent it full width, which made
+  // it a barrier, which left Starting characters alone in a group and stacked everything down the
+  // left of a 1,400px screen.
+  //
+  // Measured instead: the width of the widest ROW, as the sum of each column's longest cell. A
+  // long prose cell is capped, because it wraps rather than forcing the table wider. The
+  // threshold is in characters and deliberately generous — being wrong towards "it fits" costs a
+  // little horizontal scrolling inside one section, being wrong the other way costs half the page.
+  // Measured in the SAME pixels the table renderer uses, and it has to be: this decides whether
+  // a section goes in a half-width pane, and the renderer decides whether the table inside gets
+  // a scroll box against the FULL width. Two different estimates meant a table could be judged
+  // narrow enough for a pane here and wide enough to fit there — so it went into the pane with
+  // no scroll box and was clipped by the card. The settlement-sizes page lost the last digit of
+  // every number in its Total column that way.
+  //
+  // A header cannot wrap and is uppercase with tracking, so it is the floor for its column; body
+  // text wraps at spaces, so the floor there is its longest single word. That is the width the
+  // table cannot go below, which is the only figure that answers "will this be clipped".
+  const BODY_PX = 7.0, HEAD_PX = 8.4, PAD_PX = 22.4;
+  const tableMinPx = (s) => {
+    const rows = [...s.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((m) =>
+      [...m[1].matchAll(/<(t[hd])[^>]*>([\s\S]*?)<\/t[hd]>/g)].map((c) => {
+        let px = 0;
+        for (const im of c[2].matchAll(/<img[^>]*\bwidth="(\d+)"/gi)) px += parseInt(im[1], 10) + 7;
+        const txt = c[2].replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+        return c[1] === "th"
+          ? px + txt.length * HEAD_PX                                        // nowrap: whole heading
+          // wraps at spaces AND hyphens, which is where a browser breaks it too
+          : px + Math.max(0, ...txt.split(/[\s\-–]+/).map((w) => w.length)) * BODY_PX;
+      }));
+    if (!rows.length) return 0;
+    const cols = Math.max(...rows.map((r) => r.length));
+    let w = 0;
+    for (let c = 0; c < cols; c++) w += PAD_PX + Math.max(0, ...rows.map((r) => r[c] || 0));
+    return w;
+  };
+  // A pane is half the content column, less the gap and the two cards' padding.
+  const PANE_PX = 660;
+  // A btab table (the buildings index) has fixed columns that already take ~32rem before its
+  // prose column, so it is meant for the whole row; measured, it went into a pane and the
+  // "What it is" column was left one word wide.
+  const isWide = (s) => /class="btab[ "]/.test(s) || tableMinPx(s) > PANE_PX;
+  const secWrap = (s, wide) => `<section class="sec${wide ? " wide" : ""}">${s}</section>`;
+
+  // Stacked, in the order they were written, each card the full width. `wide` is what the
+  // section carries everywhere else for "this one takes the whole row", so a table inside is
+  // measured against the full width and gets its scroll box on the same terms as anywhere else.
+  if (rel && SINGLE_COLUMN.test(String(rel))) {
+    return (lede ? `<div class="lede">${lede}</div>` : "") + secs.map((s) => secWrap(s, true)).join("");
+  }
+
+  // Rendered height, in rough text lines. Table and list rows are one line each; prose is its
+  // character count over a line length; an image stands in for the space it occupies. This is
+  // an estimate and only has to be good enough to tell a 5-line section from a 500-line one.
+  const weigh = (s) => (s.match(/<tr>/g) || []).length
+    + (s.match(/<li>/g) || []).length
+    + Math.ceil(s.replace(/<[^>]*>/g, " ").length / 90)
+    + (s.match(/<img\b/gi) || []).length * 8;
+
+  // A section that dwarfs everything beside it cannot be balanced against anything: put a
+  // 1,180-line roster in one pane and the other pane is empty for its whole length. Those take
+  // the full width, and they split the run either side of them so section order is preserved.
+  // The test is "at least twice everything else put together", with a floor of about a screen
+  // of text — below that the space left over is not worth giving up the second column for.
+  const DWARFS = 2 / 3, FLOOR = 40;
+  // Otherwise: two panes, longest section placed first into whichever pane is shorter. Placing
+  // in READING order instead is what put a 116-line section beside a 20-line one on the region
+  // pages — the big item arrived last, when the choice had already been made.
+  const paneGroup = (group) => {
+    if (!group.length) return "";
+    if (group.length === 1) return secWrap(group[0], isWide(group[0]));
+    const w = group.map(weigh);
+    const total = w.reduce((a, b) => a + b, 0) || 1;
+    const big = w.indexOf(Math.max(...w));
+    if (w[big] >= FLOOR && w[big] / total >= DWARFS) {
+      return paneGroup(group.slice(0, big)) + secWrap(group[big], isWide(group[big]))
+        + paneGroup(group.slice(big + 1));
+    }
+    const pick = [], h = [0, 0];
+    for (const i of group.map((_, i) => i).sort((a, b) => w[b] - w[a])) {
+      const k = h[0] <= h[1] ? 0 : 1;
+      pick[i] = k; h[k] += w[i];
+    }
+    const pane = [[], []];
+    group.forEach((s, i) => pane[pick[i]].push(secWrap(s, false)));   // reading order within a pane
+    return `<div class="panes">${pane.map((p) => `<div class="pane">${p.join("")}</div>`).join("")}</div>`;
+  };
+
+  // The unit pages are not distributed: the owner asked for the description in a column of its
+  // own, starting at the top beside the unit card, with everything short stacked on the left.
+  // Balancing would put the prose halfway down the page, which is the thing being fixed.
+  const descAt = secs.findIndex((s) => /^<h2[^>]*>Description</i.test(s));
+  if (descAt >= 0) {
+    // The title and the "all units" line head the page, not a column, so they stay full width
+    // above both panes — otherwise the description's first line sits level with the H1 and the
+    // card is pushed below it. The left column starts where the card does.
+    const cut = lede.search(/<p>[^\n]*<img/i);
+    const head = cut < 0 ? lede : lede.slice(0, cut).trim();
+    const paneLede = cut < 0 ? "" : lede.slice(cut).trim();
+    // Asked for again on 2026-09-26: the description ABOVE the stats. The side column put it
+    // last whenever the two columns stacked (any narrow window), so it now leads, full width,
+    // right under the cards; the other sections follow in their usual layout.
+    const others = secs.filter((_, i) => i !== descAt);
+    return (head ? `<div class="lede">${head}</div>` : "")
+      + (paneLede ? `<div class="lede">${paneLede}</div>` : "")
+      + secWrap(secs[descAt], true)
+      // …and the rest use the width too, balanced into two panes like every other page.
+      + paneGroup(others);
+  }
+
+  const out = [];
+  let group = [];
+  const flush = () => { if (group.length) { out.push(paneGroup(group)); group = []; } };
+  // The lede's images float, so the section after them wraps alongside and continues
+  // underneath — the one thing a column layout cannot do. Only worth holding a section out of
+  // the layout when there IS an image to wrap: on a region page the lede is three lines of
+  // text, and doing it anyway just pushed the first section down the page.
+  let start = 0;
+  const ledeHasImage = /<img\b/i.test(lede);
+  if (lede) out.push(`<div class="lede">${lede}</div>`);
+  if (ledeHasImage && secs.length) { out.push(`<div class="lede-flow">${secs[0]}</div>`); start = 1; }
+
+  // A wide section is a barrier: it takes the whole width, so the runs either side of it are
+  // balanced separately and nothing is reordered across it.
+  for (let i = start; i < secs.length; i++) {
+    if (isWide(secs[i])) { flush(); out.push(secWrap(secs[i], true)); continue; }
+    group.push(secs[i]);
+  }
+  flush();
+  return out.join("");
+}
+
+function renderMarkdown(md, toc) {
+  const lines = md.split(/\r?\n/);
+  const out = [];
+  let i = 0;
+  // A table right after a `<div class="… nodeal …">` is never dealt into side-by-side copies
+  // (the faction recruit tables, whose columns must line up with each other).
+  let noDealNext = false;
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // A YouTube link alone on its line (the developer diaries) plays in the page. The markdown
+    // keeps the plain link, which is what the GitHub wiki (no iframes there) shows instead.
+    const yt = /^\s*<?https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})\S*?>?\s*$/.exec(line);
+    if (yt) {
+      out.push(`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${yt[1]}" title="YouTube video" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`);
+      i++; continue;
+    }
+
+    if (RAW_BLOCK.test(line)) {
+      if (/class="[^"]*nodeal/.test(line)) noDealNext = true;
+      // <summary> holds inline markdown worth rendering rather than dumping raw.
+      const sm = /^\s*<summary([^>]*)>(.*)<\/summary>\s*$/i.exec(line);
+      out.push(sm ? `<summary${sm[1]}>${inline(sm[2])}</summary>` : line.trim());
+      i++; continue;
+    }
+
+    // Table: a header row followed by a separator row of dashes/colons.
+    if (/^\|/.test(line) && i + 1 < lines.length && /^\|[\s:|-]+\|?\s*$/.test(lines[i + 1])) {
+      // A cell may contain an escaped pipe. Several of the mod's own requirement strings do
+      // ("Any Government | Tier 2 Colony not built"), and splitting on every | tore those rows
+      // into extra columns. `\|` is how markdown writes a literal pipe in a cell; the escape is
+      // removed again in inline().
+      const cells = (r) => r.split(/(?<!\\)\|/).slice(1, -1).map((c) => c.trim());
+      const head = cells(line);
+      // Alignment from the separator row, so numeric columns stay right-aligned.
+      const align = cells(lines[i + 1]).map((c) => (/^-+:$/.test(c) ? "right" : /^:-+:$/.test(c) ? "center" : ""));
+      i += 2;
+      const body = [];
+      while (i < lines.length && /^\|/.test(lines[i])) { body.push(cells(lines[i])); i++; }
+      // ── narrow lists run several items to a row ──────────────────────────
+      // A 170-row table of "Zone / Units / Regions" is about 30 characters of content stretched
+      // across a 1,400px screen and 170 rows deep: two thirds empty, and nothing but scrolling
+      // to read it. Where the table is narrow enough that copies of it fit side by side, the
+      // rows are dealt ACROSS instead — items 1, 2, 3 on the first row, 4, 5, 6 on the second —
+      // so the same list is a third as tall and the width is used.
+      //
+      // Dealt across rather than cut into thirds deliberately: a reader scanning the first row
+      // of a table sorted by units expects the top three, not items 1, 58 and 115.
+      //
+      // One table with the columns repeated, not three tables side by side, because then the
+      // rows line up by construction and there is a single header, a single scroll box and no
+      // flex to fall out of alignment when one group's cells wrap.
+      // Estimated in PIXELS, not characters. Characters were close enough to decide "does this
+      // need the whole width", but not to decide "do three copies fit", where the answer for the
+      // faction tables came out at 2.98 — and a character count cannot tell you that the emblem
+      // in the first column is 34px whatever its filename is, nor that an uppercase header with
+      // letter-spacing is half again as wide per character as the body text under it.
+      //
+      // The constants are read off the stylesheet below: body cells 0.9rem, headers 0.82rem
+      // uppercase with .04em tracking and nowrap, .7rem of padding each side.
+      // GROUP_GAP_PX is what a group costs BEYOND its own columns, and it is small: the cell
+      // that starts a group takes 1.1rem of left padding where every other takes .7rem, so the
+      // extra is about 7px, not the 18 first guessed at. Getting that wrong is not academic —
+      // four of the belief index's groups measured 463px against a budget that allowed 462, so
+      // they ran two across while the other eighteen ran three, and the whole difference was
+      // padding this line had invented.
+      const BODY_PX = 7.0, HEAD_PX = 8.4, PAD_PX = 22.4, GROUP_GAP_PX = 7;
+      // The content column at a typical wide window. Raised from 1380 when the sidebar came
+      // down from 15rem to 12.5 and main's side padding from 2.2rem to 1.6: 40px plus 19px
+      // handed back. This constant and that layout have to move together — leave it behind and
+      // the dealing goes on rationing a width the page no longer has.
+      const CONTENT_PX = 1440;
+      const textPx = (cell) => {
+        let px = 0;
+        // An <img width="N"> occupies N pixels regardless of how long its markup is.
+        for (const im of String(cell).matchAll(/<img[^>]*\bwidth="(\d+)"/gi)) px += parseInt(im[1], 10) + 7;
+        const txt = String(cell).replace(/<[^>]*>/g, "")
+          .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")     // a link is as wide as its text
+          .replace(/[*_`]/g, "").trim();
+        // Capped at 12 characters. A long cell does NOT force the table wider — the browser
+        // wraps it — so the width a column NEEDS is set by its header, which cannot wrap, and by
+        // typical content rather than by its longest value. Without a cap, one 17-character
+        // faction name in a culture of 37 dropped that whole table from three across to two.
+        //
+        // 12 rather than 14 because at 14 the answer still depended on the longest name in each
+        // list: eighteen of the belief index's twenty-two groups ran three across and four ran
+        // two, purely because those four happened to contain a longer word. A run of the same
+        // list at two different widths reads as a fault, so the cap sits below where that
+        // difference decides anything. What it costs is a wrapped name here and there.
+        return px + Math.min(12, txt.length) * BODY_PX;
+      };
+      const headPx = (h) => h.replace(/<[^>]*>/g, "").length * HEAD_PX;
+      const colPx = head.map((h, k) => PAD_PX + Math.max(headPx(h),
+        ...body.map((r) => textPx(r[k] || ""))));
+      const groupPx = colPx.reduce((a, b) => a + b, 0);
+      // The width below which the table CANNOT be squeezed: a header does not wrap (nowrap, so
+      // the whole heading is one unbreakable run) and body text wraps only between words. This
+      // is a different question from the one above and needs its own answer — the capped
+      // estimate says how much room the table would LIKE, this says what it must have.
+      const longestWordPx = (cell) => {
+        let px = 0;
+        for (const im of String(cell).matchAll(/<img[^>]*\bwidth="(\d+)"/gi)) px += parseInt(im[1], 10) + 7;
+        const txt = String(cell).replace(/<[^>]*>/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[*_`]/g, "");
+        // Split on hyphens as well as spaces: a browser breaks a line after a hyphen, so
+        // "Delmato-Pannonian" needs room for "Pannonian", not for all seventeen characters.
+        // Treating it as one unbreakable word is what held four of the belief index's groups to
+        // two across while the other eighteen ran three.
+        return px + Math.max(0, ...txt.split(/[\s\-–]+/).map((w) => w.length)) * BODY_PX;
+      };
+      const minPx = head.reduce((sum, h, k) => sum + PAD_PX
+        + Math.max(headPx(h), ...body.map((r) => longestWordPx(r[k] || ""))), 0);
+      // Being wrong high costs a horizontal scrollbar inside that one table, which `.tw` already
+      // provides; being wrong low wastes half the page, which is what this exists to stop.
+      // Two copies of a table that then has to scroll sideways is worse than one that does not:
+      // the wrapper gains a horizontal scrollbar AND, because it needs a height for its header
+      // to stick to, a vertical one as well — two bars around a list that would have sat still.
+      // So the dealing is capped by what FITS at the width the table cannot go below, not only
+      // by what it would like.
+      const fits = Math.max(1, Math.floor(CONTENT_PX / (minPx + GROUP_GAP_PX)));
+      // Eight rows, not the twenty-four this started at. That figure was picked for "this list
+      // is long enough to be worth dealing", but the point is saving vertical space, and a
+      // twelve-row table of four short columns wastes just as much of the page as a hundred-row
+      // one — the faction index has twenty cultures under twenty-four factions, every one of
+      // them a narrow column with two thirds of the width beside it empty. Below eight there is
+      // little left to save and a three-across table of two rows reads as a mistake.
+      // Gate at more than one row, not eight. Eight left ten of the faction index's
+      // twenty-two cultures undealt, and an undealt table sizes to its content while a dealt one
+      // takes the full width — so the page was a run of identical lists at half a dozen
+      // different widths, which reads as a fault rather than as a size.
+      //
+      // Capped at the row count as well, so a two-row list is dealt two across and not three:
+      // a header with an empty third group under it looks like something failed to load.
+      // No row-count gate and no row-count cap. Both were there to stop a short list being dealt
+      // into a header with empty groups under it, and both cost the thing that matters more:
+      // a dealt table takes the full width and an undealt one sizes to its content, so any list
+      // left out of the dealing came out a different width from the ones around it. On a page
+      // that is the same list repeated — the faction index — that reads as breakage.
+      //
+      // So a one-faction culture is dealt three across with two slots left empty, and looks like
+      // its neighbours. Empty slots, not stretched content: the columns keep their widths.
+      const UP = noDealNext ? 1 : Math.max(1, Math.min(4, fits, Math.floor(CONTENT_PX / (groupPx + GROUP_GAP_PX))));
+      noDealNext = false;
+
+      const cls = (k, first) => {
+        const c = `${align[k] || ""}${first && k === 0 ? " grp" : ""}`.trim();
+        return c ? ` class="${c}"` : "";
+      };
+      const thOne = (first) => head.map((h, k) => `<th${cls(k, first)}>${inline(h)}</th>`).join("");
+      const tdOf = (r, first) => head.map((_, k) =>
+        `<td${cls(k, first)}>${r ? inline(r[k] || "") : ""}</td>`).join("");
+
+      let th, tr, rowCount;
+      if (UP > 1) {
+        // A group with nothing in it gets blank heading cells, not a repeat of the headings. A
+        // one-row list dealt three across was printing "Belief · Regions · Majority · …" three
+        // times with rows under only the first, which reads as two sections that failed to load.
+        // The cells still have to be THERE, or the columns stop lining up — they are just empty.
+        // Dealt DOWN each group, not across (2026-10-30): an alphabetical list read down a group
+        // otherwise skips two names in three. The first body.length % UP groups take one row
+        // more, so the groups end within a row of each other and none is empty while another
+        // has two; group g holds a row only when g < body.length, as before.
+        const at = dealDown(body.length, UP);
+        th = Array.from({ length: UP }, (_, g) =>
+          (g < body.length ? thOne(g > 0) : head.map((_, k) => `<th${cls(k, g > 0 && k === 0)}></th>`).join(""))).join("");
+        rowCount = Math.ceil(body.length / UP);
+        tr = Array.from({ length: rowCount }, (_, r) => "<tr>"
+          + Array.from({ length: UP }, (_, g) => tdOf(at(r, g) < 0 ? null : body[at(r, g)], g > 0)).join("") + "</tr>").join("");
+      } else {
+        th = thOne(false);
+        rowCount = body.length;
+        tr = body.map((r) => `<tr>${tdOf(r, false)}</tr>`).join("");
+      }
+      // Big tables get fixed layout. Content-based sizing means the browser measures every
+      // row to decide column widths, and on the 1,172-row roster that pegged a CPU core and
+      // made the pointer stutter — any restyle re-measured the whole table. Fixed layout takes
+      // the widths from the header row and stops caring how many rows follow. Counted on the
+      // ROWS RENDERED, so a list dealt three-up drops below the threshold honestly.
+      // Only a table that genuinely overruns the page gets a horizontal scrollbar. That is not
+      // cosmetic: `overflow-x:auto` makes the wrapper a scroll container on BOTH axes, and a
+      // sticky header inside one sticks to the top of that container rather than to the window
+      // — which is why the column headings used to scroll away on every long list. Tables that
+      // fit have no wrapper scroll, so their headings follow the page.
+      const cannotFit = minPx * UP + GROUP_GAP_PX * (UP - 1) > CONTENT_PX;
+      const wrapCls = `tw${rowCount > 60 ? " big" : ""}${UP > 1 ? " multi" : ""}${cannotFit ? " scroll" : ""}`;
+      // data-cols and data-up let the browser re-deal this table to the window it is actually in.
+      // Everything above is an ESTIMATE of a width no server can know — it decides what a reader
+      // sees before the script runs, and on a narrower window than the estimate assumes it is
+      // simply wrong. The script un-deals from these two numbers and deals again by measurement.
+      out.push(`<div class="${wrapCls}" data-cols="${head.length}" data-up="${UP}">`
+        + `<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`);
+      continue;
+    }
+
+    let m = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (m) {
+      const level = m[1].length, text = inline(m[2]), id = slugId(m[2]);
+      // Both levels are collected, and the bar picks. A page's sections are its H2s — except
+      // where a page is one long list whose runs are H3s, deliberately, so the viewer does not
+      // card each of them; the faction index is exactly that. Recording only H2 gave that page
+      // an empty jump bar, which is the page that most needs one.
+      if ((level === 2 || level === 3) && toc) toc.push({ id, text, level });
+      out.push(`<h${level} id="${id}">${text}</h${level}>`);
+      i++; continue;
+    }
+
+    if (/^\s*>\s?/.test(line)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^\s*>\s?/, "")); i++; }
+      out.push(`<blockquote>${renderMarkdown(buf.join("\n"))}</blockquote>`);
+      continue;
+    }
+
+    if (/^\s*[-*]\s+/.test(line)) {
+      // Nested by indentation (the mod's changelogs go three levels deep): each distinct indent
+      // width is a level, and a level can only open one deeper than the one before it. A flat
+      // list renders exactly as it always has.
+      const items = [];
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+        const m = /^(\s*)[-*]\s+(.*)$/.exec(lines[i]);
+        items.push({ d: m[1].replace(/\t/g, "    ").length, t: m[2] });
+        i++;
+      }
+      const widths = [...new Set(items.map((x) => x.d))].sort((a, b) => a - b);
+      let html = "", depth = -1;
+      for (const x of items) {
+        const lvl = Math.min(widths.indexOf(x.d), depth + 1);
+        if (lvl > depth) { html += "<ul>"; depth = lvl; }
+        else { while (depth > lvl) { html += "</li></ul>"; depth--; } html += "</li>"; }
+        html += `<li>${inline(x.t)}`;
+      }
+      while (depth >= 0) { html += "</li></ul>"; depth--; }
+      out.push(html);
+      continue;
+    }
+
+    if (/^\s*$/.test(line)) { i++; continue; }
+
+    // Paragraph: consume until a blank line or a construct that starts a new block.
+    const buf = [];
+    while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+           !/^#{1,6}\s/.test(lines[i]) && !/^\|/.test(lines[i]) &&
+           !/^\s*>/.test(lines[i]) && !/^\s*[-*]\s/.test(lines[i]) &&
+           !RAW_BLOCK.test(lines[i])) { buf.push(lines[i]); i++; }
+    if (buf.length) {
+      const html = inline(buf.join(" "));
+      // A paragraph that is NOTHING BUT images, two or more of them, is a row of pictures
+      // rather than prose — on a faction page that is the symbol beside the territory map.
+      // Floated individually they hang from a shared top edge, so a 120px symbol sits against
+      // the top quarter of a 700px map. Marked here and centred by CSS instead.
+      const onlyImages = (html.match(/<img\b/gi) || []).length >= 2 &&
+        !html.replace(/<img\b[^>]*>/gi, "").replace(/<\/?a\b[^>]*>/gi, "").trim();
+      out.push(`<p${onlyImages ? ' class="imgrow"' : ""}>${html}</p>`);
+    }
+  }
+  // An emblem and the name after it ("<img …> Pergamon") sit together: the space between them
+  // goes, and CSS (.emb) gives the one small gap, the same everywhere.
+  return out.join("\n").replace(/<img\b([^>]*\bwidth="(?:16|20|24|32)"[^>]*)>[ \t]+(?=[^<\s])/g,
+    (m, attrs) => (/\bclass=/.test(attrs) ? m : `<img class="emb"${attrs}>`));
+}
+
+// ── shell ────────────────────────────────────────────────────────────────────
+const CSS = `
+/* ── the mod's own colours ────────────────────────────────────────────────────
+   Tyrian purple #67033d and gold #fad05d, both SAMPLED out of the RIS badge rather than
+   picked to taste: the badge is 59,475 pixels of #67033d with the monogram in #fad05d /
+   #edc558. Using anything else made this look like a generic documentation site that happened
+   to be about RIS.
+
+   The accent swaps by theme because the pair is not symmetric. Gold on the dark background is
+   about 9:1 contrast and reads well; gold on white is roughly 1.7:1 and is unreadable, so the
+   light theme takes the purple as its accent instead — that is about 11:1 on white. The purple
+   bar and the gold rule stay constant across both, so the identity does not change with the
+   theme, only the thing that has to be legible as text. */
+:root{
+  --tyrian:#67033d; --tyrian-deep:#4b0230; --gold:#e8c15a;
+  --bg:#12141a; --panel:#181b22; --raised:#1e222b; --side:#0e1015; --fg:#e9e6e0; --dim:#9a958c; --line:#2a2e37;
+  --acc:#e8c15a; --acc-soft:rgba(232,193,90,.13); --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+/* The light theme is parchment, not paper. White with grey rules is the look of a software
+   manual; this is a wiki about the ancient Mediterranean sitting under a purple-and-gold bar,
+   and #faf9f7 with #fff panels made the whole page read as blank. The surfaces are warm and
+   the page and the panels are separated by tone rather than by a border alone.
+   Contrast measured, not eyeballed: body text 13.4:1 on the page and 15.2:1 on a panel, muted
+   text 5.1:1, links 8.6:1 — all clear of AA, with the muted tone the tightest of them. */
+@media(prefers-color-scheme:light){
+  :root{--bg:#ded0b4; --panel:#ebe0cb; --raised:#f4ecdd; --side:#d3c3a2; --fg:#2a2318; --dim:#574a38; --line:#c4b192;
+        --acc:#7d0a49; --acc-soft:rgba(103,3,61,.10); --shadow:0 1px 3px rgba(80,60,30,.14)}
+}
+:root[data-theme="light"]{--bg:#ded0b4;--panel:#ebe0cb;--raised:#f4ecdd;--side:#d3c3a2;--fg:#2a2318;--dim:#574a38;
+  --line:#c4b192;--acc:#7d0a49;--acc-soft:rgba(103,3,61,.10);--shadow:0 1px 3px rgba(80,60,30,.14)}
+:root[data-theme="dark"]{--bg:#12141a;--panel:#181b22;--raised:#1e222b;--side:#0e1015;--fg:#e9e6e0;--dim:#9a958c;--line:#2a2e37;
+  --acc:#e8c15a;--acc-soft:rgba(232,193,90,.13);--shadow:0 1px 3px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+/* Thin gold scrollbars on no track, in both themes: the wide grey system bar was the one thing on
+   the page that did not belong to the mod, most of all inside the game's framed manual panel. Chromium
+   (Chrome, Edge, Steam's in-game browser) draws the 8px ::-webkit bar below. The standard properties
+   go only to browsers without ::-webkit-scrollbar (Firefox): where both apply, Chromium 121+ drops the
+   ::-webkit rules for its own "thin" bar, which on Windows is still the old one with arrow buttons -
+   gold but wide, as seen in the game's panel. scrollbar-width/-color are inherited, so the sidebar's
+   own scroll area takes them too. */
+@supports not selector(::-webkit-scrollbar){html{scrollbar-width:thin;scrollbar-color:rgba(232,193,90,.6) transparent}}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(232,193,90,.6);border:2px solid transparent;background-clip:padding-box;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background-color:#e8c15a}
+html{scroll-behavior:smooth}
+/* A heading jumped to lands at the top of the window, which is underneath a sticky bar — so
+   every link in the jump strip put the section it named just out of sight, with the row of
+   factions below it looking like the top of the section. Costs nothing when nothing is sticky. */
+h1,h2,h3,h4,h5,h6{scroll-margin-top:calc(var(--topbar) + .7rem)}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+
+/* top bar */
+/* The bar is the mod's purple in both themes, with its badge in it — that one strip is what
+   makes a page recognisable as RIS at a glance, before any of the words are read. */
+/* Everything that has to clear the bar reads this, so the bar can grow a second row without
+   the sidebar and every sticky table heading having to be told about it separately. */
+:root{--topbar:3.1rem}
+body.has-jump{--topbar:5.35rem}
+/* Compare units: picked rows pinned at the top of the table (or a small table at the top of
+   the page), and the picked rows themselves marked where they sit. */
+tr[data-unit],td[data-unit]{cursor:pointer}
+tr.cmp-on>td,td.cmp-on{background:var(--acc-soft)}
+tr.cmp-pin>td{background:var(--raised);border-bottom:1px solid var(--line)}
+tr.cmp-sep>td{background:var(--bg);border-top:2px solid var(--acc);border-bottom:1px solid var(--line);
+  padding:1.1rem .7rem .35rem;color:var(--dim);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+tr.cmp-cap>td{background:var(--acc-soft);font-size:.88rem;padding:.35rem .7rem}
+tr.cmp-cap span{color:var(--dim);margin-left:.4rem}
+td.cmp-best{color:var(--acc);font-weight:700}
+.cmp-x,.cmp-clear{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;cursor:pointer;font:inherit}
+.cmp-x{padding:0 .4rem;margin-left:.4rem;line-height:1.3}
+.cmp-clear{padding:.05rem .55rem;margin-left:.6rem}
+.cmp-x:hover,.cmp-clear:hover{border-color:var(--acc)}
+.cmp-panel{overflow-x:auto;margin:0 0 1rem;border:1px solid var(--line);border-radius:8px}
+tr.cmp-hold>td{padding:.5rem;background:var(--bg)}
+tr.cmp-hold .cmp-panel{margin:0}
+.cmp-panel td,.cmp-panel th{white-space:nowrap}
+.cmp-panel table{margin:0}
+.cmp-panel thead th{position:static;top:auto}
+.cmp-btn{display:inline-block;margin:0 0 .8rem;background:var(--panel);color:var(--fg);border:1px solid var(--acc);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font:inherit}
+.cmp-hint{color:var(--dim);font-size:.85rem;margin:.2rem 0 .4rem}
+/* A remastered faction: the red (R) after its name (lib/remasteredTag.js). */
+.rm-tag{color:#e0463c;font-weight:700;font-size:.78em;margin-left:.25em;white-space:nowrap;cursor:help}
+:root[data-theme="light"] .rm-tag{color:#b3261e}
+/* A long list spread across the width (the guides' faction list). */
+.cols ul{columns:15rem;column-gap:2.2rem;margin:0}
+.cols li{break-inside:avoid;margin:0 0 .35rem}
+/* Hover previews of unit and faction links (lib/hoverPreview.js). */
+.hov{position:fixed;z-index:40;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow);padding:.55rem .7rem;font-size:.85rem;max-width:17rem;line-height:1.35}
+.hov[hidden]{display:none}
+.hov-h{display:flex;gap:.55rem;align-items:center;margin-bottom:.35rem}
+.hov-h img{border-radius:4px;flex:none}
+.hov-h b{display:block;color:var(--acc);font-size:.95rem}
+.hov-h small{color:var(--dim)}
+.hov table{margin:0;border-collapse:collapse;width:100%}
+.hov th,.hov td{padding:.08rem .3rem;border:0;background:none}
+.hov th{color:var(--dim);font-weight:500;text-align:left;text-transform:none;letter-spacing:0;font-size:.85rem}
+.hov td{text-align:right;font-variant-numeric:tabular-nums}
+.hov p{margin:.35rem 0 0;color:var(--dim);font-size:.8rem}
+.hov .hov-ic{max-width:48px;max-height:48px;object-fit:contain}
+/* Tabs between two views of one list (All factions | Remastered). */
+.ptabs{display:flex;gap:.3rem;margin:.2rem 0 1rem;border-bottom:1px solid var(--line)}
+.ptabs a,.ptabs span{padding:.4rem .9rem;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;margin-bottom:-1px;text-decoration:none}
+.ptabs span{border-color:var(--line);background:var(--panel);color:var(--fg);font-weight:600}
+.ptabs a{color:var(--dim)}
+.ptabs a:hover{color:var(--acc)}
+/* Campaign buttons on pages that differ between campaigns (build-ris-wiki-site.js). */
+.ctabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:.1rem 0 1rem}
+.ctabs a,.ctabs span{padding:.28rem .8rem;border:1px solid var(--line);border-radius:999px;font-size:.88rem;text-decoration:none;background:var(--panel)}
+.ctabs a{color:var(--fg)}
+.ctabs a:hover{border-color:var(--acc);color:var(--acc)}
+.ctabs span{border-color:var(--acc);color:var(--acc);font-weight:600;background:var(--acc-soft)}
+.ctabs span.off{border-color:var(--line);color:var(--dim);font-weight:400;background:transparent;opacity:.55;cursor:default}
+/* Tables that should line up with each other: always the full width. */
+.wide .tw,.wide table{width:100%}
+.hov .hov-map{display:block;width:100%;max-height:9rem;object-fit:cover;border-radius:6px;margin:.2rem 0 .3rem}
+.top{position:sticky;top:0;z-index:20;background:var(--tyrian);border-bottom:1px solid var(--tyrian-deep);
+  box-shadow:var(--shadow)}
+.top .bar{display:flex;gap:1rem;align-items:center;padding:.55rem 1rem}
+/* The page's sections, always in reach. It scrolls sideways rather than wrapping, because a bar
+   that grows a second line on some pages and not others moves every sticky offset under it. */
+.jump{display:flex;gap:.1rem;align-items:center;overflow-x:auto;padding:0 .7rem .4rem;
+  scrollbar-width:thin}
+.jump a{color:rgba(244,234,216,.78);text-decoration:none;white-space:nowrap;font-size:.8rem;
+  padding:.15rem .45rem;border-radius:5px}
+.jump a:hover{color:var(--tyrian);background:var(--gold)}
+/* Where you are, as against where you could go. Deliberately quieter than :hover — it marks a
+   position, it is not offering an action. */
+.jump a.on{color:var(--gold);background:rgba(232,193,90,.16);font-weight:600}
+/* One colour, and it is the gold the mod letters its own logo in — the wordmark and the badge
+   beside it then read as one mark. It used to be two, a cream word and a gold one, which was a
+   leftover from when it said "RIS wiki" and the second word was the accented part of a phrase.
+   The name is the mod's: RTR: Imperium Surrectum. */
+.brand{font-weight:650;letter-spacing:.01em;color:var(--gold);text-decoration:none;white-space:nowrap;
+  display:flex;align-items:center;gap:.55rem}
+.brand img{width:26px;height:26px;border-radius:5px;display:block}
+.top form{flex:1;display:flex;max-width:34rem}
+.top input{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);
+  border-radius:8px;padding:.42rem .7rem;font:inherit;font-size:.9rem}
+.top input:focus{outline:2px solid var(--acc-soft);border-color:var(--acc)}
+/* Fixed light tones rather than --dim: the bar is purple in BOTH themes, so a variable that
+   goes dark grey in the light theme would be unreadable on it half the time. */
+.top .right{display:flex;gap:.9rem;align-items:center;font-size:.82rem;color:rgba(244,234,216,.72)}
+.top .right a{color:rgba(244,234,216,.72);text-decoration:none}
+.top .right a:hover{color:var(--gold)}
+#theme{background:none;border:1px solid rgba(244,234,216,.3);border-radius:6px;
+  color:rgba(244,234,216,.8);cursor:pointer;font:inherit;font-size:.78rem;padding:.2rem .5rem}
+#theme:hover{border-color:var(--gold);color:var(--gold)}
+#theme .ico{display:none}
+
+/* layout */
+/* 12.5rem, down from 15. The navigation is a list of short labels and was taking 15rem of a
+   screen whose whole point is fitting three tables across; that is 40px given back to every
+   page. The type comes down with it so the longest label still fits on one line — "Hazards and
+   river trade" is 23 characters, about 154px at .84rem, and the column holds 172 inside its
+   padding. Anything longer wraps rather than being cut, which is the right failure. */
+.wrap{display:grid;grid-template-columns:12.5rem minmax(0,1fr);gap:0;align-items:start}
+nav.side{position:sticky;top:var(--topbar);height:calc(100vh - var(--topbar));overflow-y:auto;
+  border-right:1px solid var(--line);padding:1.1rem .7rem 3rem;font-size:.84rem;background:var(--side)}
+nav.side h4{margin:1.1rem 0 .35rem;font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--dim);font-weight:600}
+nav.side h4:first-child{margin-top:0}
+nav.side a{display:block;color:var(--fg);text-decoration:none;padding:.2rem .45rem;
+  border-radius:6px;line-height:1.4}
+nav.side a:hover{background:var(--acc-soft);color:var(--acc)}
+nav.side a.on{background:var(--acc-soft);color:var(--acc);font-weight:600}
+/* A system's pages fold under it (lib/wikiNav.js); the arrow sits over the right end of the
+   system's own link, which keeps its full width as a target. Child links keep the full text
+   colour: the muted tone fails AA on the sidebar surface. */
+nav.side a.in{color:var(--acc)}
+nav.side .grp{position:relative}
+nav.side .grp>a{padding-right:1.8rem}
+nav.side .fold{position:absolute;right:0;top:0;width:1.7rem;height:calc(1.4em + .4rem);padding:0;border:0;
+  border-radius:6px;background:none;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center}
+nav.side .fold::before{content:"";width:.36rem;height:.36rem;border:solid currentColor;border-width:0 2px 2px 0;
+  transform:rotate(-45deg);transition:transform .12s}
+nav.side .fold:hover{background:var(--acc-soft);color:var(--acc)}
+nav.side .grp.open>.fold::before{transform:translateY(-.1rem) rotate(45deg)}
+nav.side .kids{display:none;margin:.1rem 0 .35rem .6rem;padding-left:.4rem;border-left:1px solid var(--line)}
+nav.side .grp.open>.kids{display:block}
+nav.side .kids a{font-size:.8rem;padding:.14rem .45rem}
+/* Every page uses the full width of the window. No max-width: a cap here left the right-hand
+   side of a wide monitor empty, which is the thing being fixed. Readability is handled by
+   splitting content into columns below rather than by throwing the space away. */
+main{min-width:0;padding:1.6rem 1.6rem 5rem;width:100%}
+
+/* Two columns, each a normal-flow block holding whole sections. There is exactly ONE grid row
+   here — the two panes — so nothing inside either column can be held back by the height of
+   something in the other. Which sections go where is decided in sectionise(); see the note
+   there for why this is not a grid of sections.
+   Below ~80rem of viewport there is not room for two readable columns beside the sidebar, so
+   they stack. */
+.panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 2.8rem;
+  align-items:start;clear:both}
+.pane{min-width:0}
+@media(max-width:80rem){.panes{grid-template-columns:1fr}}
+/* ── three surfaces, not one ──────────────────────────────────────────────────
+   Everything used to sit on the page background with a hairline under each heading, so a
+   reader had to work out where one section ended and the next began from the spacing alone.
+   There are now three tones — the page, a section card on it, and a table raised on the card —
+   which is what makes it possible to see at a glance what belongs to what.
+
+   Dark goes up in lightness, light goes up too: paper stacked on a desk, which is the reading
+   most people already have. Contrast measured on every layer rather than only the page, since
+   the raised surface is the one most text ends up on: dark 12.8:1 body / 5.4:1 muted / 9.3:1
+   links, light 13.2 / 7.3 / 8.9. */
+.sec{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:.1rem 1.15rem 1rem;margin:0 0 1.1rem}
+.sec>h2:first-child,.sec>h3:first-child{margin-top:1rem}
+/* The lede deliberately stays ON the page rather than in a card: it is the page's own
+   introduction, and boxing it would put a frame around the title's own sentence. */
+/* In a column, the unit card sits at the top of its own line rather than floating: at 164px
+   inside a half-width pane a float leaves the stat table wrapped around it. */
+.pane .lede img{float:none;max-width:100%;margin:0 0 1rem}
+.pane .lede p.imgrow{float:none;max-width:100%;margin:0 0 1rem}
+.sec>h2:first-child{margin-top:1.2rem}
+.pane>.sec:first-child>h2:first-child{margin-top:.2rem}
+/* The lede's image floats, so the section after it wraps alongside and then continues under
+   it. This is the one thing a grid cannot do: grid rows align, so a short map column sat empty
+   until the tall campaign brief beside it finished. */
+.lede{max-width:none}
+.lede img{float:left;margin:.2rem 1.8rem .8rem 0;max-width:min(42%,34rem);border-radius:8px}
+/* An emblem in a line of text (a community guide's "[<img> Pergamon](…)") stays in the line:
+   floated like a lede picture it left a gap before the name and broke the line spacing. */
+.lede img:is([width="16"],[width="20"],[width="24"],[width="32"]){float:none;display:inline-block;margin:0;border-radius:0;vertical-align:-.3em}
+img.emb,.lede img.emb{margin-right:.25rem}
+/* A reform's event picture is a banner across the top, not a floated lede image. */
+.lede .reform-banner p,.lede .reform-banner p.imgrow,.reform-banner p{float:none;display:block;max-width:none;margin:0}
+.lede .reform-banner img,.reform-banner img{float:none;display:block;width:100%;max-width:732px;height:auto;margin:.3rem 0 1.2rem;border-radius:8px}
+/* A row of pictures floats as ONE block, and the pictures centre against each other inside it.
+   Floating them separately hangs both from the same top edge, which on a faction page pins the
+   120px symbol level with the top quarter of the map. The map keeps the width it had; the
+   container is that plus the symbol and the gap, so nothing else on the page moves. */
+.lede p.imgrow{float:left;display:flex;align-items:center;gap:1.4rem;
+  margin:.2rem 1.8rem .8rem 0;max-width:min(56%,44rem)}
+.lede p.imgrow img{float:none;margin:0;height:auto}
+.lede p.imgrow img:first-child{flex:0 0 auto}
+.lede p.imgrow img:last-child{flex:0 1 auto;min-width:0;max-width:min(100%,34rem)}
+/* A faction page leads with its map, and the emblem and the faction's numbers stand beside it
+   rather than above it. A flex row rather than a float: the two are peers here, and a float
+   would let the campaign brief climb up the side of the map and sit level with the emblem. */
+.fhead{display:flex;gap:1.5rem;align-items:flex-start;margin:.2rem 0 1.4rem;flex-wrap:wrap}
+.fhead > p{margin:0;flex:1 1 26rem;min-width:0}
+.fhead img{float:none;margin:0;max-width:100%;height:auto;border-radius:8px}
+.fmeta{flex:1 1 15rem;min-width:0;font-size:.95rem;line-height:1.75}
+/* No map, just the emblem: its column is the emblem's own width, not the map's 26rem. */
+.fhead.femblem{flex-wrap:nowrap;align-items:center}
+.yt{position:relative;width:100%;max-width:800px;aspect-ratio:16/9;margin:12px 0;border-radius:6px;overflow:hidden;background:#000}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:10px 0 22px}
+.vid{display:flex;flex-direction:column;gap:5px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);text-decoration:none}
+.vid:hover{background:var(--raised);border-color:var(--acc)}
+.vid img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:5px;background:#000}
+.vid .vt{font-weight:600;line-height:1.3}
+.vid .vm{color:var(--dim);font-size:.85em}
+.fhead.femblem > p{flex:0 0 auto}
+.fmeta img{border-radius:6px;margin-bottom:.5rem}
+/* The faction card beside the map: a panel with the emblem centred on top and the facts listed. */
+/* With a card, the map keeps its own width instead of stretching, so the card sits beside it. */
+.fhead.fwc > p{flex:0 1 auto}
+.fhead.fwc > p img{width:612px}
+.fhead .fcard{flex:0 1 20rem;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+ padding:1rem 1.2rem;box-shadow:var(--shadow);line-height:1.6}
+.fcard-emb{text-align:center;margin-bottom:.6rem}
+.fcard-emb img{width:170px;height:auto;margin:0;border-radius:0}
+.fcard-facts ul{margin:0;padding:0;list-style:none}
+.fcard-facts li{padding:.28rem 0;border-top:1px solid var(--line)}
+.fcard-facts li:first-child{border-top:none}
+.fcard-facts p{margin:0 0 .6rem}
+/* The faction's two recruit tables (faction units, regional units) share one layout, so their
+   columns line up: full width, fixed card and unit columns, requirements take the rest. */
+.rtab .tw{width:100%}
+.rtab table{width:100%;table-layout:fixed}
+.rtab th:nth-child(1){width:3.8rem}
+.rtab th:nth-child(2){width:16rem}
+.rtab td{max-width:none}
+/* The buildings index: every category table the same full width and column widths. */
+.btab .tw{width:100%}
+.btab table{width:100%;table-layout:fixed}
+.btab th:nth-child(1){width:4.2rem}
+.btab th:nth-child(2){width:17rem}
+.btab th:nth-child(3),.btab th:nth-child(4){width:5.2rem}
+.btab td{max-width:none}
+.lede em{display:block;clear:none;color:var(--dim);font-size:.85rem}
+.lede-flow{margin-bottom:1.5rem}
+.lede-flow>h2:first-child{margin-top:.2rem}
+/* Once the floated map ends, the next block reclaims the full width. */
+.sec{clear:both}
+@media(max-width:900px){.lede img{float:none;max-width:100%;margin-right:0}
+  .lede p.imgrow{float:none;max-width:100%;margin-right:0}}
+/* Prose paragraphs stay readable without narrowing the page: the line length is limited on
+   the paragraph, not on the container, so tables and images beside them still get the width. */
+.lede>p,.sec>p{max-width:104ch}
+/* A section holding a wide table is allowed to take the whole row rather than being squeezed
+   — the roster and building tables have more columns than a half-width column can show. */
+.sec.wide{grid-column:1/-1}
+
+/* content */
+.crumb{font-size:.8rem;color:var(--dim);margin-bottom:.5rem}
+.crumb a{color:var(--dim);text-decoration:none}
+.crumb a:hover{color:var(--acc)}
+h1{font-size:1.85rem;line-height:1.25;margin:.1rem 0 .6rem;letter-spacing:-.01em}
+/* The mod's own divider under the page title. It is a wide, symmetric piece of art with a boss
+   at its centre, so it is anchored left and allowed to run to whatever width the column gives
+   it; scaled by height rather than stretched, so it never distorts. */
+h1::after{content:"";display:block;height:15px;margin:.55rem 0 1rem;
+  background:url(/art/ris-rule.png) left center/auto 100% no-repeat;opacity:.9}
+/* The home page's title and rule sit centred over the centred logo. */
+h1[id^="welcome-to-ris"]{text-align:center}
+h1[id^="welcome-to-ris"]::after{background-position:center center}
+/* The logo paragraph right under it spans the whole column too: the 104ch cap on lede paragraphs
+   made its box narrower than the title's, so the "centred" logo sat left of the title and rule. */
+h1[id^="welcome-to-ris"]+p{max-width:none}
+h2{font-size:1.28rem;margin:2.1rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid var(--line)}
+/* An h3 divides a list into runs — the faction index uses one per culture — so it carries a
+   rule and a gold tick to be findable when scrolling, without becoming a card of its own. */
+/* The gap ABOVE a divider is what separates one run from the last, so it is the larger of the
+   two — but only just. It was 1rem over .3rem, which read as a paragraph break where a rule
+   already does the separating. */
+h3{font-size:1.06rem;margin:.5rem 0 .3rem;color:var(--fg);
+  padding:0 0 .24rem .62rem;border-bottom:1px solid var(--line);border-left:3px solid var(--gold)}
+/* No underline at rest, one on hover. On a page that is mostly tables of links the underlines
+   are noise rather than affordance — and where a link wraps an emblem and a name, the rule runs
+   under the emblem too and reads as a stray mark in front of the word. The colour already says
+   it is a link; hover says it again for anyone checking. */
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+/* An image inside a link never takes the rule, even on hover: the line sits under the picture
+   rather than under anything readable. */
+a:hover img{text-decoration:none}
+p{margin:.7rem 0}
+code{background:var(--acc-soft);color:var(--fg);padding:.08rem .32rem;border-radius:4px;
+  font-size:.85em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+blockquote{margin:1rem 0;padding:.65rem .95rem;border-left:3px solid var(--acc);
+  background:var(--acc-soft);border-radius:0 6px 6px 0}
+blockquote p{margin:.25rem 0}
+/* Tables size to their content. width:100% stretched an 8-row, 5-column summary across a
+   whole 4K monitor with most of it empty — the numbers ended up further from their labels the
+   more screen you had. fit-content on the wrapper keeps the border around the table rather
+   than around the empty space beside it, and max-width caps a genuinely wide table, which
+   then scrolls inside the wrapper as before. */
+.tw{border:1px solid var(--line);border-radius:8px;margin:.3rem 0 .5rem;
+  background:var(--raised);width:fit-content;max-width:100%}
+/* Scrolls only when the table really is wider than the page. See the note in the renderer: an
+   overflow container captures the sticky header, so giving one to every table cost the column
+   headings on every long list. */
+.tw.scroll{overflow:auto;max-height:calc(100vh - var(--topbar) - 2rem)}
+/* Inside a scroll container the header pins to the container, not the window, so the offset
+   that clears the site bar would push it a bar's height down its own box. */
+.tw.scroll th{top:0}
+table{border-collapse:collapse;width:auto;font-size:.9rem}
+/* Long prose in a cell would otherwise make a table as wide as its longest sentence. */
+td{max-width:70ch}
+/* A table with hundreds of rows: fixed layout, so column widths come from the header row and
+   the browser never walks the body to size them. Content-fit is only affordable when there is
+   little content to fit. */
+/* A list dealt several items to a row takes the full width — that is the point of it — and the
+   groups are separated by a rule rather than a gap so the eye can tell one item's columns from
+   the next one's. */
+.tw.multi{width:100%}
+/* Auto layout, not fixed: the columns then size to their content and the browser wraps a long
+   cell to make the whole thing fit the container, which is what lets three groups sit across a
+   page that could not hold three copies of the widest row unwrapped. */
+.tw.multi table{width:100%}
+.tw.multi th.grp,.tw.multi td.grp{border-left:1px solid var(--line);padding-left:1.1rem}
+.tw.big{width:100%;contain:paint}
+.tw.big table{width:100%;table-layout:fixed}
+.tw.big td{max-width:none;overflow:hidden;text-overflow:ellipsis}
+/* Off-screen rows are skipped until scrolled to. Without this, moving the pointer over a
+   1,172-row table restyles and repaints rows nobody is looking at, which is what made the
+   cursor stutter. contain-intrinsic-size keeps the scrollbar honest for the skipped ones. */
+.tw.big tbody tr{content-visibility:auto;contain-intrinsic-size:auto 2.05rem}
+/* Tighter than it was (.42/.7). On a table dealt three or four across, cell padding is paid
+   for once per column per group — a dozen times over on one row — so a tenth of a rem here is
+   most of the reason a short list looked spread out across the page. */
+th,td{padding:.34rem .55rem;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line)}
+/* 3.1rem, not 0: the site bar is sticky at the top of the window and is that tall, so a header
+   pinned at 0 slides underneath it and is never readable. The sidebar already uses the same
+   offset. z-index keeps the heading above the rows it is holding station over. */
+/* The heading band is the section's own tone, one step under the table it sits on, so it reads
+   as a band rather than as another row. It must be opaque: it is sticky, and rows slide behind. */
+th{background:var(--panel);position:sticky;top:var(--topbar);z-index:5;font-weight:600;font-size:.82rem;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--dim);white-space:nowrap}
+td.right,th.right{text-align:right;font-variant-numeric:tabular-nums}
+td.center,th.center{text-align:center}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+/* A table dealt into side-by-side groups holds several entries per row, so the row highlight
+   lit up every entry across it. There only the group under the pointer is lit (see the script). */
+.tw.multi tbody tr:hover{background:none}
+.tw.multi td.hl{background:var(--acc-soft)}
+img{max-width:100%;height:auto;vertical-align:middle}
+img[align="right"]{margin:0 0 1rem 1.4rem;border-radius:8px;box-shadow:var(--shadow)}
+a:has(img){display:inline-block}
+ul{margin:.5rem 0 .5rem 1.3rem;padding:0}
+li{margin:.16rem 0}
+/* A fold is a control, so it should look like one. It sits on the raised tone rather than the
+   section's own — background:var(--panel) made it the same colour as the card around it, so the
+   thing a reader is meant to click was distinguishable only by its border. The marker turns
+   when it opens, which is the affordance that says "there is more here". */
+details{margin:.9rem 0;border:1px solid var(--line);border-radius:8px;background:var(--raised);
+  padding:.1rem .9rem}
+details[open]{padding-bottom:.6rem}
+summary{cursor:pointer;padding:.55rem 0;font-size:.92rem;color:var(--acc);font-weight:600;
+  list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"";width:0;height:0;flex:0 0 auto;
+  border:.34rem solid transparent;border-left-color:currentColor;
+  transition:transform .12s ease;transform-origin:.17rem 50%}
+details[open]>summary::before{transform:rotate(90deg)}
+summary:hover{color:var(--fg)}
+details .tw{border:none;background:none}
+hr{border:none;border-top:1px solid var(--line);margin:2rem 0}
+
+/* search results */
+.res{list-style:none;margin:0;padding:0}
+.res li{border-bottom:1px solid var(--line);padding:.42rem .2rem}
+.res li:last-child{border-bottom:none}
+/* Named "kind", not "sec". It was "sec", which later became the class for a section CARD — so
+   every result's little grey label was quietly given a panel background, a border and 1.15rem
+   of padding. A generic class name meeting a generic class name.
+   (No backticks in this stylesheet: it is a template literal, and one closes it.) */
+.res .kind{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  nav.side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);
+    max-height:12rem}
+  main{padding:1.2rem 1.1rem 4rem}
+  /* The edit links are for the team at a desk; the theme switch is for everyone, phones
+     included. It used to go with them (the whole group was hidden), which left a phone with no
+     way out of whichever theme the OS picked. On a phone it is an icon, so the search keeps
+     its room and the bar stays one line. */
+  .top .bar{gap:.6rem;padding:.55rem .75rem}
+  .top .right a{display:none}
+  #theme{font-size:1.05rem;line-height:1;padding:.32rem .5rem;flex:none}
+  #theme .ico{display:inline}
+  #theme .lbl{display:none}
+}
+/* A phone cannot hold the name, a usable search box and the theme switch on one line: at 390px
+   the name took 233px and left the search 81. The badge alone is the mod's mark and still goes
+   home; the name is in the big logo on the index. */
+@media(max-width:480px){
+  .brand .name{display:none}
+  .brand img{width:30px;height:30px}
+}
+`;
+
+const { NAV, ALWAYS: NAV_ALWAYS, match: navMatch } = require("./lib/wikiNav.js");
+
+// "edit" opens the page's own editor on the GitHub wiki (GitHub lets only collaborators save).
+// A generated page's wiki name comes from page-map.json (flat names: "regions-Akarnania"); a
+// team page is named for itself; anything unmapped falls back to the wiki's front page.
+const WIKI_URL = "https://github.com/RTR-Imperium-Surrectum/ris-wiki/wiki";
+const WIKI_NAME_OF = (() => {
+  try {
+    const { PAGES_DIR } = require("./ris-wiki-notes.js");
+    const map = JSON.parse(fs.readFileSync(path.join(PAGES_DIR, "page-map.json"), "utf8"));
+    const inv = {};
+    for (const [name, p] of Object.entries(map)) inv[p] = name;
+    return inv;
+  } catch { return {}; }
+})();
+function editHref(rel) {
+  const p = String(rel || "").replace(/^\//, "").replace(/\.md$/i, "");
+  if (/^team\//.test(p)) return `${WIKI_URL}/${encodeURIComponent(p.slice(5))}/_edit`;
+  const name = WIKI_NAME_OF[p] || (p === "README" ? "README" : null);
+  return name ? `${WIKI_URL}/${encodeURIComponent(name)}/_edit` : WIKI_URL;
+}
+function navHtml(rel) {
+  const there = (href) => NAV_ALWAYS.has(href) || fs.existsSync(path.join(ROOT, href.slice(1)));
+  const sections = NAV.map(([heading, items]) => [heading, items.filter(([href]) => there(href))
+    .map(([href, label, kids]) => [href, label, (kids || []).filter(([k]) => there(k))])]);
+  // A group opens when the reader is on one of its pages. Being ON a listed page beats being in
+  // a listed family, so a government's building page opens Government and not Buildings too.
+  const score = (href, kids) => Math.max(navMatch(href, rel), ...kids.map(([k]) => navMatch(k, rel)));
+  const best = Math.max(0, ...sections.flatMap(([, items]) => items.map(([href, , kids]) => score(href, kids))));
+  const link = (href, label) => {
+    const m = navMatch(href, rel);
+    return `<a href="${href}"${m === 2 ? ' class="on"' : m === 1 ? ' class="in"' : ""}>${esc(label)}</a>`;
+  };
+  return sections.filter(([, items]) => items.length).map(([heading, items]) => `<h4>${esc(heading)}</h4>` + items.map(([href, label, kids]) => {
+    if (!kids.length) return link(href, label);
+    const open = best > 0 && score(href, kids) === best;
+    return `<div class="grp${open ? " open" : ""}">${link(href, label)}`
+      + `<button type="button" class="fold" aria-expanded="${open}" aria-label="${esc(label)}: show or hide its pages"></button>`
+      + `<div class="kids">${kids.map(([k, l]) => link(k, l)).join("")}</div></div>`;
+  }).join("")).join("");
+}
+
+// A page deep in factions/ or units/ gets a trail back up, which the flat "Index ·" bar
+// never gave: 2,700 pages and no sense of where you are.
+function crumbs(rel) {
+  let segs = rel.replace(/^\//, "").split("/");
+  const out = [`<a href="/README.md">RIS wiki</a>`];
+  // A campaign variant's page (v/<id>/…, gen-ris-variant-merge.js): the campaign's name, then
+  // the family as usual, pointing at the campaign's own overview when it has one.
+  let vpre = "";
+  if (segs[0] === "v" && segs.length > 2) {
+    if (!crumbs.vnames) {
+      crumbs.vnames = {};
+      try { crumbs.vnames = JSON.parse(fs.readFileSync(path.join(ROOT, "v", "variants.json"), "utf8")).names || {}; } catch { /* none */ }
+    }
+    out.push(esc(crumbs.vnames[segs[1]] || segs[1]));
+    vpre = `/v/${segs[1]}`;
+    segs = segs.slice(2);
+  }
+  if (segs.length > 1) {
+    const section = segs[0];
+    // Named explicitly rather than derived from the directory: the trade goods live in goods/
+    // but their index is trade-goods.md, so "<dir>.md" would have produced a crumb pointing at
+    // a file that does not exist — which the existence check below turns into an unlinked word,
+    // silently losing the way back up.
+    // Every page family gets an entry. A family missing from here does not break — the crumb
+    // falls back to unlinked text — which is exactly why three of them (sizes, cultures,
+    // religions) went unnoticed after being added: the way back up quietly stopped being a link.
+    const INDEX_OF = {
+      factions: "/factions.md", regions: "/regions.md", settlements: "/regions.md",
+      units: "/units.md", buildings: "/buildings.md", goods: "/trade-goods.md",
+      sizes: "/sizes.md", cultures: "/cultures.md", religions: "/religions.md",
+      traits: "/traits.md", ancillaries: "/ancillaries.md", reforms: "/reforms.md", revolts: "/revolts.md", diaries: "/diaries.md",
+    };
+    let overview = INDEX_OF[section] || null;
+    if (overview && vpre && fs.existsSync(path.join(ROOT, vpre.slice(1), overview.slice(1)))) overview = vpre + overview;
+    // A community guide lives in team/ but belongs to the Community guides list.
+    if (section === "team" && /^Guide-/.test(segs[1] || "")) out.push(`<a href="/community-guides.html">community guides</a>`);
+    else out.push(overview && fs.existsSync(path.join(ROOT, overview.slice(1)))
+      ? `<a href="${overview}">${esc(section)}</a>` : esc(section));
+  }
+  return `<div class="crumb">${out.join(" › ")}</div>`;
+}
+
+// The page's own sections, as a strip in the bar. The bar is sticky, so they stay reachable
+// however far down you are — which is the point on a page of 22 sections where the alternative
+// is scrolling back to the top to reach the next one.
+//
+// The label is the text before the first "·". These headings carry their counts now — "Gallic ·
+// 44 factions · 43 hold territory at the start" — and a bar of those is unreadable and does not
+// fit. A heading with no "·" keeps all of its text, so this costs nothing on other pages.
+//
+// H2s if the page has any, H3s otherwise: a page whose runs are H3s (the faction index) is
+// exactly the page this is for, and mixing both levels would list a section and its subsections
+// side by side as equals.
+function jumpStrip(toc) {
+  if (!toc || !toc.length) return "";
+  const level = toc.some((t) => t.level === 2) ? 2 : 3;
+  const items = toc.filter((t) => t.level === level);
+  if (items.length < 2) return "";     // a strip pointing at one place is furniture, not a tool
+  // Heading text arrives already rendered (tags, &amp;); strip and DECODE before esc(), or
+  // "Coding & Gameplay" shows as "Coding &amp;amp; Gameplay" in the strip.
+  const unent = (x) => x.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+  const short = (s) => unent(String(s).split("·")[0].replace(/<[^>]*>/g, "").trim()) || s;
+  return `<div class="jump">${items.map((t) => `<a href="#${t.id}">${esc(short(t.text))}</a>`).join("")}</div>`;
+}
+
+const SHELL = (title, body, rel, toc) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)} — RTR: Imperium Surrectum</title>
+<style>${CSS}</style></head><body${jumpStrip(toc) ? ' class="has-jump"' : ""}>
+<div class="top">
+  <div class="bar">
+  <a class="brand" href="/README.md" aria-label="RTR: Imperium Surrectum, wiki index"><img src="/art/ris-mark.png" alt=""><span class="name">RTR: Imperium Surrectum</span></a>
+  <form action="/search" method="get" role="search">
+    <input name="q" type="search" placeholder="Search ${INDEX.length.toLocaleString("en-US")} pages: a faction, region or unit…" autocomplete="off">
+  </form>
+  <div class="right">
+    <button id="theme" type="button" title="Switch theme" aria-label="Switch theme"><span class="ico" aria-hidden="true">◐</span><span class="lbl">theme</span></button>
+    <a href="${editHref(rel)}" title="${/^\/?team\//.test(String(rel)) ? "Edit this page on the wiki (team members only)" : "Add a team note to this page on the wiki (team members only)"}">edit</a>
+    <a href="${WIKI_URL}/_new" title="Write a new page on the wiki (team members only); it appears under Team pages">new page</a>
+  </div>
+  </div>
+  ${jumpStrip(toc)}
+</div>
+<div class="wrap">
+  <nav class="side">${navHtml(rel)}</nav>
+  <main>${crumbs(rel)}${body}</main>
+</div>
+<script>
+// Theme choice persists across pages; the OS preference is the default.
+(function(){
+  var k="ris-wiki-theme", s=localStorage.getItem(k);
+  if(s) document.documentElement.setAttribute("data-theme", s);
+  document.getElementById("theme").addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    if(!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    var next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem(k, next);
+  });
+  // The menu's arrows fold a system's pages in or out. Listened for on the menu itself, so the
+  // groups the team's own menu adds later (wiki-notes/menu.json) fold too.
+  var side = document.querySelector("nav.side");
+  if(side) side.addEventListener("click", function(e){
+    var b = e.target;
+    if(!b.classList || !b.classList.contains("fold")) return;
+    var open = b.parentNode.classList.toggle("open");
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  // "/" focuses search, as on every docs site.
+  document.addEventListener("keydown", function(e){
+    if(e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+      e.preventDefault(); document.querySelector('.top input').focus();
+    }
+  });
+
+  // ── hover one entry, not the whole row, in a dealt table ───────────────────
+  // A group starts at a cell marked "grp" (or at the row's first cell), and runs to the next.
+  (function(){
+    var lit = [];
+    function clear(){ lit.forEach(function(c){ c.classList.remove("hl"); }); lit = []; }
+    document.addEventListener("mouseover", function(e){
+      var td = e.target.closest && e.target.closest(".tw.multi td");
+      clear();
+      if (!td) return;
+      var cells = Array.prototype.slice.call(td.parentNode.children);
+      var i = cells.indexOf(td), a = i, b = i;
+      while (a > 0 && !cells[a].classList.contains("grp")) a--;
+      while (b + 1 < cells.length && !cells[b + 1].classList.contains("grp")) b++;
+      for (var k = a; k <= b; k++) { cells[k].classList.add("hl"); lit.push(cells[k]); }
+    });
+  })();
+
+  // ── deal the tables to the window that is actually open ────────────────────
+  // The server decides how many copies of a narrow table fit across the page from an ESTIMATE of
+  // a width it cannot know. On a window narrower than the estimate assumes, three lists that
+  // were meant to sit side by side do not, and the page is wrong for the person reading it. So
+  // the server's answer is only the starting position: here it is measured and redone, and
+  // redone again when the window changes.
+  //
+  // Reads in one pass and writes in one pass. There are pages here carrying 156 tables, and
+  // interleaving a measurement with a rebuild per table would force 156 reflows; setting them
+  // all flat, then reading all the widths, then rebuilding all, costs two.
+  (function deal(){
+    var tws = [].slice.call(document.querySelectorAll(".tw[data-cols]")).filter(function(t){ return !t.closest(".nodeal"); });
+    if (!tws.length) return;
+
+    function capture(tw){
+      var t = tw.querySelector("table");
+      if (!t || !t.tHead || !t.tBodies[0]) return null;
+      var cols = +tw.getAttribute("data-cols"), up = +tw.getAttribute("data-up") || 1;
+      var hc = t.tHead.rows[0].cells, head = [], klass = [];
+      for (var k = 0; k < cols; k++) {
+        head.push(hc[k] ? hc[k].innerHTML : "");
+        // The alignment class lives on every cell of a column; take it from the heading, and
+        // drop "grp", which marks where a GROUP starts and is re-applied when dealing.
+        klass.push(hc[k] ? hc[k].className.replace(/\bgrp\b/, "").trim() : "");
+      }
+      // Groups are dealt DOWN (see dealDown on the server): read each group's column of rows,
+      // then put the groups back end to end, and the list is in its own order again.
+      var groups = [];
+      for (var g0 = 0; g0 < up; g0++) groups.push([]);
+      [].forEach.call(t.tBodies[0].rows, function(r){
+        for (var g = 0; g < up; g++) {
+          var cells = [], any = false;
+          for (var k = 0; k < cols; k++) {
+            var c = r.cells[g * cols + k];
+            cells.push(c ? c.innerHTML : "");
+            if (c && c.innerHTML.replace(/\s|&nbsp;/g, "")) any = true;
+          }
+          // Padding cells from the previous deal are dropped rather than kept as blank rows.
+          if (any) groups[g].push(cells);
+        }
+      });
+      var rows = [].concat.apply([], groups);
+      return { t: t, cols: cols, head: head, klass: klass, rows: rows };
+    }
+
+    function render(d, up){
+      var cell = function(tag, html, k, first){
+        var c = (d.klass[k] + (first && k === 0 ? " grp" : "")).trim();
+        return "<" + tag + (c ? ' class="' + c + '"' : "") + ">" + html + "</" + tag + ">";
+      };
+      var th = "", g, k, r;
+      for (g = 0; g < up; g++) for (k = 0; k < d.cols; k++) {
+        // A group with no row in it gets blank headings — not a repeat of them over nothing.
+        th += cell("th", g < d.rows.length ? d.head[k] : "", k, g > 0);
+      }
+      var body = "", n = Math.ceil(d.rows.length / up);
+      var base = Math.floor(d.rows.length / up), extra = d.rows.length % up;
+      for (r = 0; r < n; r++) {
+        body += "<tr>";
+        for (g = 0; g < up; g++) {
+          // Down each group, the first "extra" groups one row longer: dealDown on the server.
+          var row = r < base + (g < extra ? 1 : 0) ? d.rows[g * base + Math.min(g, extra) + r] : null;
+          for (k = 0; k < d.cols; k++) body += cell("td", row ? row[k] : "", k, g > 0);
+        }
+        body += "</tr>";
+      }
+      d.t.tHead.rows[0].innerHTML = th;
+      d.t.tBodies[0].innerHTML = body;
+    }
+
+    var state = [];
+    tws.forEach(function(tw){
+      var d = capture(tw);
+      if (d && d.rows.length) { state.push({ tw: tw, d: d, up: 0, one: 0 }); }
+    });
+    if (!state.length) return;
+
+    function layout(first){
+      if (first) {
+        state.forEach(function(s){ render(s.d, 1); s.tw.classList.remove("multi"); });
+        // One read pass, after one write pass.
+        state.forEach(function(s){
+          s.one = s.d.t.offsetWidth;
+          s.avail = (s.tw.parentNode && s.tw.parentNode.clientWidth) || s.one;
+        });
+      } else {
+        state.forEach(function(s){ s.avail = (s.tw.parentNode && s.tw.parentNode.clientWidth) || s.one; });
+      }
+      state.forEach(function(s){
+        // 7px is what a group costs beyond its own columns: its first cell takes 1.1rem of left
+        // padding where the others take .7rem.
+        var up = Math.max(1, Math.min(4, Math.floor(s.avail / (s.one + 7)) || 1));
+        if (up === s.up) return;              // nothing to rebuild at this width
+        s.up = up;
+        render(s.d, up);
+        s.tw.classList.toggle("multi", up > 1);
+        s.tw.classList.toggle("scroll", s.one > s.avail);
+      });
+    }
+
+    layout(true);
+    var timer = null, was = window.innerWidth;
+    window.addEventListener("resize", function(){
+      if (window.innerWidth === was) return;   // a vertical-only resize changes nothing here
+      was = window.innerWidth;
+      clearTimeout(timer);
+      timer = setTimeout(function(){ layout(false); }, 120);
+    });
+  })();
+
+  // The jump strip marks where you are. On a page of 22 sections the strip otherwise tells you
+  // where you could go and nothing about where you have got to, and the strip itself scrolls
+  // sideways — so the current entry is brought into view rather than left off the end of it.
+  //
+  // IntersectionObserver rather than a scroll handler: a scroll handler on a 4,000-row page
+  // fires on every frame and has to measure each heading, which is what made the pointer
+  // stutter on the big tables before. This does the work only when a heading crosses the line.
+  var strip = document.querySelector(".jump");
+  if (strip && window.IntersectionObserver) {
+    var links = {}, order = [], seen = {};
+    Array.prototype.forEach.call(strip.querySelectorAll("a"), function(a){
+      var id = decodeURIComponent(a.getAttribute("href").slice(1));
+      links[id] = a; order.push(id);
+    });
+    var mark = function(){
+      var active = null;
+      for (var i = 0; i < order.length; i++) if (seen[order[i]]) active = order[i];
+      Array.prototype.forEach.call(strip.querySelectorAll("a.on"), function(a){ a.classList.remove("on"); });
+      if (active && links[active]) {
+        links[active].classList.add("on");
+        var a = links[active], l = a.offsetLeft, r = l + a.offsetWidth;
+        if (l < strip.scrollLeft || r > strip.scrollLeft + strip.clientWidth) {
+          strip.scrollTo({ left: Math.max(0, l - strip.clientWidth / 3), behavior: "smooth" });
+        }
+      }
+    };
+    // The trigger line sits just under the bar. A heading counts as reached once its top passes
+    // it, and stops counting when it scrolls back below — so "active" is the last one crossed.
+    var top = parseFloat(getComputedStyle(document.body).getPropertyValue("--topbar")) || 3.1;
+    var px = top * parseFloat(getComputedStyle(document.documentElement).fontSize || 16);
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ seen[e.target.id] = e.boundingClientRect.top < px + 8; });
+      mark();
+    }, { rootMargin: (-Math.round(px) - 8) + "px 0px 0px 0px", threshold: 0 });
+    order.forEach(function(id){ var el = document.getElementById(id); if (el) io.observe(el); });
+  }
+})();
+
+// ── a link to a closed fold opens it ─────────────────────────────────────────
+// The AOR page folds each area (closed, so it scrolls fast); its index table links to the folds
+// by id, and a jump to a closed one would land on a single line.
+(function(){
+  function openTarget(){
+    var id = decodeURIComponent(location.hash.slice(1));
+    var el = id && document.getElementById(id);
+    if (el && el.tagName === "DETAILS" && !el.open) { el.open = true; el.scrollIntoView(); }
+  }
+  window.addEventListener("hashchange", openTarget);
+  openTarget();
+})();
+
+// ── compare units ────────────────────────────────────────────────────────────
+// Asked for 2026-09-26; reworked the same night on the team's word ("at the top as an entry
+// instead of a popup"). Click a unit's row (anywhere but a link) to pick it. Picked units are
+// pinned as rows at the TOP of every stat table on the page, in that table's own columns, with
+// the better value in each column in gold. A page whose unit tables have no stat columns (a
+// faction's recruit tables, a unit's own page) gets the same rows in a small table at the top
+// of the page instead. Picks live in localStorage, so they follow the reader between pages; a
+// unit not in this table is built from units/compare.json (gen-ris-unit-pages.js).
+// Written without backticks, dollar-braces or backslashes: this script sits inside a template
+// literal.
+(function(){
+  var KEY = "ris-compare", MAX = 6, UNIT = /(^|[/])units[/]([a-z0-9_]+)[.](md|html)([#?]|$)/;
+  var js = document.querySelector('script[src*="wiki.js"]');
+  var ROOT = js ? js.getAttribute("src").split("wiki.js")[0] : "/";
+  var EXT = /[.]html$/.test(location.pathname) || location.protocol === "file:" ? ".html" : ".md";
+  var main = document.querySelector("main");
+  if (!main) return;
+  var data = null, loading = null;
+  function picks(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function save(p){ try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {} }
+  // A shared comparison: ?compare=unit1,unit2 in the address sets the picks (asked for
+  // 2026-09-29, so a comparison can be posted as a link).
+  var shared = /[?&]compare=([^&#]*)/.exec(location.search);
+  if (shared) save(decodeURIComponent(shared[1]).split(",").filter(function(s){ return /^[a-z0-9_]+$/.test(s); }).slice(0, MAX));
+  function shareLink(){ return location.origin + location.pathname + "?compare=" + picks().join(","); }
+  function load(){
+    if (!loading) loading = fetch(ROOT + "units/compare.json").then(function(r){ return r.json(); })
+      .then(function(d){ data = d; return d; }).catch(function(){ data = {}; return data; });
+    return loading;
+  }
+  function esc(t){ return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function toggle(slug){
+    var p = picks(), i = p.indexOf(slug);
+    if (i >= 0) p.splice(i, 1); else { p.push(slug); if (p.length > MAX) p.shift(); }
+    save(p); render();
+  }
+  // Column heading -> [compare.json key, better: 1 higher, -1 lower, 0 neither, suffix]
+  var COLS = { "class": ["cls", 0], "men": ["men", 0], "attack": ["attack", 1], "charge": ["charge", 1],
+    "charge bonus": ["charge", 1], "defence": ["def", 1], "armour": ["armour", 1], "shield": ["shield", 1],
+    "morale": ["morale", 1], "hit points": ["hp", 1], "cost": ["cost", -1], "upkeep": ["upkeep", -1],
+    "range": ["range", 1], "ammunition": ["ammo", 1], "turns": ["turns", -1] };
+  // The columns the page-top table shows when a page has no stat table of its own.
+  var PANEL = [["", "card"], ["Unit", "unit"], ["Class", "class"], ["Men", "men"], ["Attack", "attack"], ["Charge", "charge"],
+    ["Defence", "defence"], ["Armour", "armour"], ["Shield", "shield"], ["Morale", "morale"], ["Hit points", "hit points"],
+    ["Range", "range"], ["Cost", "cost"], ["Upkeep", "upkeep"]];
+  function numOf(t){ var s = String(t).replace(/[^0-9.-]/g, ""); return s === "" || s === "-" ? null : parseFloat(s); }
+  function fmt(v, key){ return v == null ? "" : typeof v === "number" ? v.toLocaleString("en-US") + (key === "cost" || key === "upkeep" ? " dn" : "") : esc(v); }
+
+  // Tables: which rows are units, and which have stat columns to pin into.
+  var slugIn = function(el){
+    var links = el.querySelectorAll("a[href]");
+    for (var i = 0; i < links.length; i++){ var m = UNIT.exec(links[i].getAttribute("href")); if (m) return m[2]; }
+    return null;
+  };
+  // plainTables: unit tables with no stat columns (a faction's recruit tables); lastTbl: the
+  // table the reader last picked from, where the comparison is shown.
+  var statTables = [], plainTables = [], lastTbl = null, any = false;
+  main.querySelectorAll("table").forEach(function(tbl){
+    if (tbl.closest(".cmp-panel")) return;
+    var tb = tbl.tBodies[0];
+    if (!tb) return;
+    var perRow = 0;
+    [].slice.call(tb.rows).forEach(function(tr){
+      var cells = [].slice.call(tr.cells), slugs = {};
+      cells.forEach(function(td){ var s = slugIn(td); if (s) slugs[s] = 1; });
+      var n = Object.keys(slugs).length;
+      if (!n) return;
+      any = true;
+      if (n === 1) { tr.setAttribute("data-unit", Object.keys(slugs)[0]); tr.title = "Click to compare"; perRow++; return; }
+      // A row holding several units side by side (a dealt table) is picked per cell.
+      var cur = null;
+      cells.forEach(function(td){ cur = slugIn(td) || cur; if (cur) { td.setAttribute("data-unit", cur); td.title = "Click to compare"; } });
+    });
+    var head = tbl.tHead && tbl.tHead.rows[0];
+    if (!perRow || !head) return;
+    var heads = [].slice.call(head.cells).map(function(th){ return th.textContent.trim().toLowerCase(); });
+    if (heads.some(function(h){ return COLS[h] && COLS[h][1]; })) statTables.push({ tbl: tbl, heads: heads });
+    else plainTables.push(tbl);
+  });
+  if (!any && !UNIT.test(location.pathname)) return;
+
+  // One pinned row: the table's own row for the unit when it has one, else one built from
+  // compare.json in the table's columns. Cells are marked with the key they show.
+  function pinRow(slug, heads, own){
+    var d = data && data[slug], tr;
+    if (own) tr = own.cloneNode(true);
+    else {
+      tr = document.createElement("tr");
+      heads.forEach(function(h, i){
+        var td = document.createElement("td"), c = COLS[h];
+        if (h === "" && i === 0) td.innerHTML = '<a href="' + ROOT + "units/" + slug + EXT + '"><img src="' + ROOT + "cards/" + slug + '.png" alt="" width="35" height="48" onerror="this.remove()"></a>';
+        else if (h === "unit") td.innerHTML = '<a href="' + ROOT + "units/" + slug + EXT + '">' + esc(d ? d.n : slug) + "</a>";
+        else if (c && d) { td.innerHTML = fmt(d[c[0]], c[0]); if (typeof d[c[0]] === "number") td.className = "right"; }
+        tr.appendChild(td);
+      });
+    }
+    tr.removeAttribute("title");
+    tr.className = "cmp-pin";
+    tr.setAttribute("data-pin", slug);
+    tr.removeAttribute("data-unit");
+    [].slice.call(tr.cells).forEach(function(td){ td.removeAttribute("data-unit"); td.removeAttribute("title"); });
+    // The remove button goes after the unit's name.
+    var nameCell = [].slice.call(tr.cells).filter(function(td){ return slugIn(td) && !td.querySelector("img"); })[0] || tr.cells[1] || tr.cells[0];
+    var x = document.createElement("button");
+    x.type = "button"; x.className = "cmp-x"; x.title = "Stop comparing"; x.textContent = "×"; x.setAttribute("data-unit", slug);
+    nameCell.appendChild(x);
+    return tr;
+  }
+  // Gold for the best value in each column of the pinned rows.
+  function markBest(rows, heads){
+    heads.forEach(function(h, i){
+      var c = COLS[h];
+      if (!c || !c[1] || rows.length < 2) return;
+      var vals = rows.map(function(r){ return r.cells[i] ? numOf(r.cells[i].textContent) : null; });
+      var nums = vals.filter(function(v){ return v != null; });
+      if (nums.length < 2 || nums.every(function(v){ return v === nums[0]; })) return;
+      var best = c[1] > 0 ? Math.max.apply(null, nums) : Math.min.apply(null, nums);
+      rows.forEach(function(r, k){ if (vals[k] === best && r.cells[i]) r.cells[i].classList.add("cmp-best"); });
+    });
+  }
+  function capRow(n, cols){
+    var tr = document.createElement("tr");
+    tr.className = "cmp-pin cmp-cap";
+    tr.innerHTML = '<td colspan="' + cols + '"><b>Comparing ' + n + " unit" + (n === 1 ? "" : "s") + "</b>"
+      + (n < 2 ? " <span>Click another unit’s row to add it.</span>" : " <span>Gold is the better value.</span>")
+      + ' <button type="button" class="cmp-clear">Clear</button>'
+      + (n > 1 ? ' <button type="button" class="cmp-share" title="Copy a link to this comparison">Share</button>' : "") + '</td>';
+    return tr;
+  }
+  var panel = null;
+  function render(){
+    var p = picks();
+    main.querySelectorAll("[data-unit]").forEach(function(el){ if (!el.classList.contains("cmp-x")) el.classList.toggle("cmp-on", p.indexOf(el.getAttribute("data-unit")) >= 0); });
+    var btn = document.querySelector(".cmp-btn");
+    if (btn) btn.textContent = p.indexOf(btn.getAttribute("data-unit")) >= 0 ? "Stop comparing this unit" : "Compare with another unit";
+    main.querySelectorAll("tr.cmp-pin").forEach(function(tr){ tr.remove(); });
+    if (panel) { panel.remove(); panel = null; }
+    if (!p.length) return;
+    if (!data) { load().then(render); return; }
+    if (statTables.length) {
+      // One table per page: the one the reader is picking from, else the first. Pinned into every
+      // stat table, a settlement page showed the comparison twice (2026-09-29).
+      var host = statTables.filter(function(t){ return t.tbl === lastTbl; })[0] || statTables[0];
+      [host].forEach(function(t){
+        var tb = t.tbl.tBodies[0], rows = [];
+        p.forEach(function(slug){
+          var own = tb.querySelector('tr[data-unit="' + slug + '"]');
+          if (own || data[slug]) rows.push(pinRow(slug, t.heads, own));
+        });
+        markBest(rows, t.heads);
+        var first = tb.firstChild;
+        tb.insertBefore(capRow(rows.length, t.heads.length), first);
+        rows.forEach(function(r){ tb.insertBefore(r, first); });
+        // A clear break between the compared rows and the table they came from.
+        var sep = document.createElement("tr");
+        sep.className = "cmp-pin cmp-sep";
+        sep.innerHTML = '<td colspan="' + t.heads.length + '">All units</td>';
+        tb.insertBefore(sep, first);
+      });
+      return;
+    }
+    // No stat table here: the same rows in a small table of their own, as the first row of the
+    // unit table the reader is picking from (a faction's recruit table), so it shows where they
+    // click; on a page with no unit table (a unit's own page), under the title.
+    var heads = PANEL.map(function(c){ return c[1] === "card" ? "" : c[1]; });
+    var rows = p.filter(function(s){ return data[s]; }).map(function(s){ return pinRow(s, heads, null); });
+    markBest(rows, heads);
+    panel = document.createElement("div");
+    panel.className = "cmp-panel";
+    panel.innerHTML = '<table><thead><tr>' + PANEL.map(function(c){ return "<th>" + c[0] + "</th>"; }).join("") + "</tr></thead><tbody></tbody></table>";
+    var tb = panel.querySelector("tbody");
+    tb.appendChild(capRow(rows.length, PANEL.length));
+    rows.forEach(function(r){ tb.appendChild(r); });
+    var host = plainTables.indexOf(lastTbl) >= 0 ? lastTbl : plainTables[0];
+    var hb = host && host.tBodies[0];
+    if (hb) {
+      var cols = host.tHead && host.tHead.rows[0] ? host.tHead.rows[0].cells.length : (hb.rows[0] ? hb.rows[0].cells.length : 1);
+      var hold = document.createElement("tr");
+      hold.className = "cmp-pin cmp-hold";
+      var td = document.createElement("td");
+      td.colSpan = cols; td.appendChild(panel); hold.appendChild(td);
+      var sep = document.createElement("tr");
+      sep.className = "cmp-pin cmp-sep";
+      sep.innerHTML = '<td colspan="' + cols + '">All units</td>';
+      hb.insertBefore(sep, hb.firstChild);
+      hb.insertBefore(hold, sep);
+      panel = null;   // removed with its row
+      return;
+    }
+    var top = btn || main.querySelector("h1");
+    if (top) top.insertAdjacentElement("afterend", panel); else main.insertBefore(panel, main.firstChild);
+  }
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    if (t.classList && t.classList.contains("cmp-x")) { e.preventDefault(); toggle(t.getAttribute("data-unit")); return; }
+    if (t.classList && t.classList.contains("cmp-clear")) { save([]); render(); return; }
+    if (t.classList && t.classList.contains("cmp-share")) {
+      var url = shareLink();
+      var done = function(){ t.textContent = "Link copied"; setTimeout(function(){ t.textContent = "Share"; }, 1800); };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function(){ prompt("Link to this comparison", url); });
+      else prompt("Link to this comparison", url);
+      return;
+    }
+    var el = t.closest && t.closest("[data-unit]");
+    if (!el || el.closest(".cmp-pin") || el.classList.contains("cmp-btn") || t.closest("a, button, input, select, summary")) return;
+    lastTbl = el.closest("table");
+    toggle(el.getAttribute("data-unit"));
+  });
+  // A unit's own page: a button under the title.
+  var own = UNIT.exec(location.pathname), h1 = main.querySelector("h1");
+  if (own && h1) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "cmp-btn"; b.setAttribute("data-unit", own[2]);
+    b.addEventListener("click", function(){ toggle(own[2]); });
+    h1.insertAdjacentElement("afterend", b);
+  }
+  if (any && !picks().length) {
+    var t0 = main.querySelector("table tbody [data-unit]");
+    var hint = document.createElement("p");
+    hint.className = "cmp-hint"; hint.textContent = "Tip: click a unit’s row (not its name) to pin it to the top of the table and compare it with others.";
+    var tbl = t0 && t0.closest("table"), host = tbl && (tbl.closest(".tw") || tbl);
+    if (host && host.parentNode) host.parentNode.insertBefore(hint, host);
+  }
+  render();
+})();
+</script>
+</body></html>
+`;
+
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url, "http://127.0.0.1");
+  let rel = decodeURIComponent(url.pathname);
+
+  if (rel === "/search") {
+    const q = url.searchParams.get("q") || "";
+    const hits = search(q);
+    // Grouped by what KIND of page each hit is. A flat list was fine when the wiki was factions
+    // and regions; there are now nine families, and "Rome" matches a region, a settlement, a
+    // faction and a fistful of units, which as one list of 200 is a pile to sift rather than an
+    // answer. The order is the order someone is most likely to have meant, and any family not
+    // named here still appears, after them — a new page family must not fall out of search
+    // because nobody added it to a list.
+    const ORDER = ["overview", "factions", "regions", "settlements", "units", "buildings",
+      "goods", "cultures", "religions", "traits", "ancillaries", "reforms", "revolts", "sizes", "tags"];
+    const groups = new Map();
+    for (const h of hits) {
+      if (!groups.has(h.section)) groups.set(h.section, []);
+      groups.get(h.section).push(h);
+    }
+    const ordered = [...groups.entries()].sort((a, b) => {
+      const ia = ORDER.indexOf(a[0]), ib = ORDER.indexOf(b[0]);
+      return (ia < 0 ? ORDER.length : ia) - (ib < 0 ? ORDER.length : ib) || a[0].localeCompare(b[0]);
+    });
+    const body = `<h1>Search</h1><p>${hits.length
+      ? `${hits.length}${hits.length === 200 ? "+" : ""} page${hits.length === 1 ? "" : "s"} matching <code>${esc(q)}</code>`
+        + `, in ${ordered.length} ${ordered.length === 1 ? "section" : "sections"}.`
+      : `Nothing matches <code>${esc(q)}</code>.`}</p>`
+      + ordered.map(([kind, list]) =>
+        // H3 rather than H2: these are runs of one list, and an H2 would box each of them.
+        `<h3 id="${slugId(kind)}">${esc(kind)} · ${list.length}</h3>`
+        + `<ul class="res">${list.map((h) =>
+          `<li><a href="${h.rel}">${esc(h.title)}</a></li>`).join("")}</ul>`).join("");
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    const toc = ordered.map(([kind, list]) => ({ id: slugId(kind), text: `${kind} · ${list.length}`, level: 3 }));
+    res.end(SHELL(`Search: ${q}`, body, "/search", toc));
+    return;
+  }
+
+  if (rel === "/" || rel === "") rel = "/README.md";
+  // Keep every request inside the wiki directory.
+  const file = path.resolve(ROOT, "." + rel);
+  if (!file.startsWith(ROOT)) { res.writeHead(403); res.end("outside the wiki"); return; }
+
+  let st = null;
+  try { st = fs.statSync(file); } catch { /* missing */ }
+  if (st && st.isDirectory()) { res.writeHead(302, { Location: path.posix.join(rel, "README.md") }); res.end(); return; }
+  if (!st) {
+    const near = search(path.basename(rel).replace(/\.md$/i, "")).slice(0, 10);
+    res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(SHELL("Not found", `<h1>Not found</h1><p>No file at <code>${esc(rel)}</code>.</p>` +
+      (near.length ? `<p>Did you mean:</p><ul class="res">${near.map((h) =>
+        `<li><a href="${h.rel}">${esc(h.title)}</a> <span class="sec">${esc(h.section)}</span></li>`).join("")}</ul>`
+        : `<p><a href="/README.md">Back to the index</a>.</p>`), rel));
+    return;
+  }
+
+  const ext = path.extname(file).toLowerCase();
+  if (ext === ".md") {
+    const md = fs.readFileSync(file, "utf8");
+    const title = (/^#\s+(.+)$/m.exec(md) || [, path.basename(file)])[1];
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    // The toc has to be held, not passed inline: renderMarkdown fills the array it is given, and
+    // the array was being created in the argument list and dropped, so the bar had nothing to
+    // build a jump strip from.
+    const toc = [];
+    res.end(SHELL(title, sectionise(renderMarkdown(md, toc), rel), rel, toc));
+    return;
+  }
+  res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
+  fs.createReadStream(file).pipe(res);
+});
+
+// Opens the default browser ONLY when asked with --open, which the launcher scripts pass. It
+// used to open one every time unless told not to, and that is the wrong way round: the launcher
+// is one caller and knows it wants a window, while every other start — a check, a measurement,
+// a rebuild — got one too and threw a tab at whoever happened to be at the keyboard.
+// --no-open still works, so anything that passed it keeps behaving.
+function openBrowser(url) {
+  if (!argv.includes("--open") || argv.includes("--no-open")) return;
+  const { spawn } = require("child_process");
+  const cmd = process.platform === "win32" ? ["cmd", ["/c", "start", "", url]]
+    : process.platform === "darwin" ? ["open", [url]]
+    : ["xdg-open", [url]];
+  try { spawn(cmd[0], cmd[1], { stdio: "ignore", detached: true }).unref(); } catch { /* print the URL instead */ }
+}
+
+// If the chosen port is busy, step up rather than dying - a team member may already have
+// a copy running, or something else may own 8099.
+// The attempt has to advance. Retrying PORT + 1 every time meant that if that port was
+// also busy the handler retried the same number forever, printing the same line on a loop.
+let attempt = PORT;
+server.on("error", (e) => {
+  if (e.code === "EADDRINUSE" && attempt < PORT + 40) {
+    attempt += 1;
+    console.log(`  port ${attempt - 1} is in use, trying ${attempt}`);
+    setTimeout(() => server.listen(attempt, "127.0.0.1"), 50);
+    return;
+  }
+  console.error(e.message);
+  process.exit(1);
+});
+
+// Exported so a static exporter can render the SAME html this serves, rather than growing a
+// second renderer that drifts from it. Guarded on require.main so requiring this file does not
+// start a server — without the guard, importing the renderer would silently take a port.
+module.exports = { renderMarkdown, sectionise, SHELL, CSS, slugId, INDEX, ROOT };
+
+if (require.main === module) {
+  server.listen(PORT, "127.0.0.1", () => {
+    const url = `http://127.0.0.1:${server.address().port}/README.md`;
+    console.log(`RIS wiki preview: ${url}`);
+    console.log(`  serving ${ROOT}`);
+    console.log(`  ${INDEX.length.toLocaleString("en-US")} pages indexed for search`);
+    console.log(`  Ctrl+C to stop`);
+    openBrowser(url);
+  });
+}
