@@ -104,3 +104,118 @@ Under the AI, Rome (and in Four Romans the Houses of Aemilii and Cornelii), the 
 - taxable income +5 at level 1, +4 at level 2, +3 at level 3, +2 at level 4, +1 at level 5
 - recruits gain 1 experience
 - 1 extra construction point
+
+## Buildings
+
+Many buildings cost taxable income in every settlement where they stand, more at higher empire size levels. Each cell is **you / the AI**; one number where both are the same.
+
+### [Military Industrial Complex](buildings-military_industrial_complex)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Training Grounds | -3 / -1 | -3 / -1 | -4 / -2 | -4 / -2 | -5 / -3 | -5 / -3 | -6 / -4 | -6 / -4 | -7 / -5 | -7 / -5 |
+| Basic Armoury | -6 / -4 | -6 / -4 | -7 / -5 | -7 / -5 | -8 / -6 | -8 / -6 | -9 / -7 | -9 / -7 | -10 / -8 | -10 / -8 |
+| Barracks and Armoury | -8 / -5 | -8 / -5 | -9 / -6 | -9 / -6 | -10 / -7 | -10 / -7 | -11 / -8 | -11 / -8 | -12 / -9 | -12 / -9 |
+| Barracks and Foundry Complex | -10 / -7 | -10 / -7 | -11 / -8 | -11 / -8 | -12 / -9 | -12 / -9 | -13 / -10 | -13 / -10 | -14 / -11 | -14 / -11 |
+
+### [Garrison](buildings-garrison)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Local Garrisons | -8 / -5 | -8 / -5 | -9 / -6 | -9 / -6 | -10 / -7 | -10 / -7 | -11 / -8 | -11 / -8 | -12 / -9 | -12 / -9 |
+| Waystations and Garrisons | -18 / -12 | -18 / -12 | -19 / -13 | -19 / -13 | -20 / -14 | -20 / -14 | -21 / -15 | -21 / -15 | -22 / -16 | -22 / -16 |
+| Permanent Military Garrisons | -28 / -22 | -28 / -22 | -29 / -23 | -29 / -23 | -30 / -24 | -30 / -24 | -31 / -25 | -31 / -25 | -32 / -26 | -32 / -26 |
+
+### [River Ports](buildings-river_port)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| River Ports | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -10 |
+| Inland Trade centre | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12 | -12 |
+
+### [Sanitation](buildings-health)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Cisterns (Sanitation) | -1 / — | -1 / — | -2 / — | -2 / — | -3 / — | -3 / — | -4 / — | -4 / — | -5 / — | -5 / — |
+| Sewers (Sanitation) | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 |
+| Public Baths (Sanitation) | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 |
+| Aqueduct (Sanitation) | -6 | -6 | -7 | -7 | -8 | -8 | -9 | -9 | -10 | -10 |
+| Great Bathhouse (Sanitation) | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 |
+
+### [Healing](buildings-hospitals)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Local Healer (Healing) | -1 / -1† | -1 / -1† | -2 / -2† | -2 / -2† | -3 / -3† | -3 / -3† | -4 / -4† | -4 / -4† | -5 / -5† | -5 / -5† |
+| Physician's Clinics (Healing) | -1 / -1† | -1 / -1† | -2 / -2† | -2 / -2† | -3 / -3† | -3 / -3† | -4 / -4† | -4 / -4† | -5 / -5† | -5 / -5† |
+| Healing Sanctuary (Healing) | -2 / -2† | -2 / -2† | -3 / -3† | -3 / -3† | -4 / -4† | -4 / -4† | -5 / -5† | -5 / -5† | -6 / -6† | -6 / -6† |
+† The AI pays it only where Sewers (Sanitation) also stands.
+
+### [Academies](buildings-academic)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Small School (Civic) | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 |
+| Academy (Civic) | -6 | -6 | -7 | -7 | -8 | -8 | -9 | -9 | -10 | -10 |
+| Great Academy (Civic) | -10 | -10 | -11 | -11 | -12 | -12 | -13 | -13 | -14 | -14 |
+
+### [Justice System](buildings-justice_court)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Magistrates' Court (Civic) | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 |
+| Court of Law (Civic) | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+| Magnificent Court of Law (Civic) | -12 | -12 | -13 | -13 | -14 | -14 | -15 | -15 | -16 | -16 |
+
+### [Arena's](buildings-amphitheatres)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Wooden Arena (Leisure) | -2 | -2 | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 |
+| Arena (Leisure) | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 |
+| Amphitheatre (Leisure) | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+| Colosseum (Leisure) | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+
+### [Racing & Athletics](buildings-racing_stadium)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Racing Course (Leisure) | -2 | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 | -8 |
+| Stadion (Leisure) | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 | -9 | -9 |
+| Hippodrome (Leisure) | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+| Huge Hippodrome (Leisure) | -10 | -10 | -11 | -11 | -12 | -12 | -13 | -13 | -14 | -14 |
+
+### [Theatre & Music](buildings-theatres)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Town Theatre (Leisure) | -2 | -2 | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 |
+| Odeon (Leisure) | -4 / — | -4 / — | -5 / — | -5 / — | -6 / — | -6 / — | -7 / — | -7 / — | -8 / — | -8 / — |
+| Theatre (Leisure) | -6 / — | -6 / — | -7 / — | -7 / — | -8 / — | -8 / — | -9 / — | -9 / — | -10 / — | -10 / — |
+| Great Theatre (Leisure) | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+
+### [Taverns](buildings-taverns)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Tavern (Leisure) | -5 | -6 | -6 | -7 | -7 | -8 | -8 | -9 | -9 | -10 |
+| Feasting Hall (Leisure) | -10 | -11 | -11 | -12 | -12 | -13 | -13 | -14 | -14 | -15 |
+
+### [Roads](buildings-hinterland_roads)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Roads | -1 | -1 | -2 | -2 | -3 | -3 | -4 | -4 | -5 | -5 |
+| Paved Roads | -5 | -5 | -6 | -6 | -8 / -7 | -8 / -7 | -9 / -8 | -9 / -8 | -10 / -9 | -10 / -9 |
+| Highways | -8 | -8 | -9 | -9 | -10 | -10 | -11 | -11 | -12 | -12 |
+
+### [Temples](buildings-temples_standard)
+
+| Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Shrine | -1 | -1 | -2 | -2 | -3 | -3 | -4 | -4 | -5 | -5 |
+| Temple | -2 | -2 | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 |
+| Large Temple | -3 | -3 | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 |
+| Awesome Temple | -4 | -4 | -5 | -5 | -6 | -6 | -7 | -7 | -8 | -8 |
+| Pantheion | -5 | -6 | -6 | -7 | -7 | -8 | -8 | -9 | -9 | -10 |
