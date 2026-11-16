@@ -107,7 +107,7 @@ Under the AI, Rome (and in Four Romans the Houses of Aemilii and Cornelii), the 
 
 ## Buildings
 
-Many buildings cost taxable income in every settlement where they stand, more at higher empire size levels. Each cell is **you / the AI**; one number where both are the same.
+Many buildings cost taxable income in every settlement where they stand, more at higher empire size levels. Each cell is **you / the AI**; one number where both are the same. With RR Turbo the AI pays the same as you.
 
 ### [Military Industrial Complex](buildings-military_industrial_complex)
 
