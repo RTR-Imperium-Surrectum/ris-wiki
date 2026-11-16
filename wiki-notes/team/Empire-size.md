@@ -77,7 +77,7 @@ By the settlement's governor building. The same for you and the AI.
 | 6 | +4 | +4 | +3 | +3 | +3 |
 | 7 | +5 | +5 | +4 | +4 | +4 |
 | 8 | +6 | +6 | +5 | +5 | +5 |
-| 9 | +11 | +11 | — | — | — |
+| 9 | +6 | +6 | +5 | +5 | +5 |
 | 10 | +6 | +6 | +5 | +5 | +5 |
 
 ### Public order (happiness)
