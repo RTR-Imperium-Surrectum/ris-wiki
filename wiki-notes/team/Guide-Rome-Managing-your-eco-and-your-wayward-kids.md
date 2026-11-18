@@ -25,8 +25,8 @@ Author: Vas
 > *This is all about power. Power in Rome. Going down that road means dealing with all my rivals.*  
 > *The senate. The Greeks. Those Carthaginian elephant riders. The Scipii and Brutii families too.*  
 > *After all, the man who controls Rome rules the world!*  
-> *And one day, I will be Emperor...*
-
+> *And one day, I will be Emperor...*  
+  
 In 270 BC, Rome stands as the dominant power on the Italian peninsula. Having largely consolidated central and southern Italy, your immediate borders are secure save for the islands and Cisalpine Gaul to the north. A few independent Italic states still hold out, while several others begin the campaign as Socii (protectorates) under your banner.
 
 **Starting Economy, Military and Diplomacy:**
