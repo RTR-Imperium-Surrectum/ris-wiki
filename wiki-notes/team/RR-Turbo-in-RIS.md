@@ -21,7 +21,7 @@ With [RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo) started normally
 - **Repair & Convert:** a building of another culture that your culture can also build appears in the town's Repair list, now headed *Repair & Convert*. Converted, it becomes yours at the same level, with your culture's look and the culture penalty eased, for a quarter of the level's price and in the level's build time.
 - On the town's building cards, a building you can convert shows the emblem of the faction that built it inside two circular arrows, in place of the game's red other-culture triangle.
 
-<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/convert-badges.png" alt="Rhegium's Greek-built buildings, each with the convert badge" width="560">
+<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/convert-badges.png" alt="Rhegium's Greek-built buildings, each with the convert badge" width="560"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/repair-convert-list.png" alt="Rhegium's Repair & Convert list" width="240">
 
 - The [Region Information Scroll](/RTR-Imperium-Surrectum/ris-wiki/wiki/buildings-hinterland_region) becomes your culture's as soon as you hold the town.
 
@@ -31,8 +31,10 @@ With [RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo) started normally
 
 ## Liberation
 
-- The [liberation](/RTR-Imperium-Surrectum/ris-wiki/wiki/buildings-liberation) building's text names the faction that would get the town, worked out the way the game picks a revolting town's new owner.
+- The [liberation](/RTR-Imperium-Surrectum/ris-wiki/wiki/buildings-liberation) and Abandon buildings' text names who would get the town (a faction, or the rebels), worked out the way the game picks a revolting town's new owner.
 - **Liberate** is offered only when the people it would free are dead and can rise again; otherwise only **Abandon**.
+
+<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/abandon-target.png" alt="Abandon Settlement in Rhegium: if abandoned, Rhegium becomes a rebel town" width="420">
 
 ## Wars and diplomacy
 
