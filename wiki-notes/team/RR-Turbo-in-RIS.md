@@ -34,7 +34,7 @@ With [RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo) started normally
 - The [liberation](/RTR-Imperium-Surrectum/ris-wiki/wiki/buildings-liberation) and Abandon buildings' text names who would get the town (a faction, or the rebels), worked out the way the game picks a revolting town's new owner.
 - **Liberate** is offered only when the people it would free are dead and can rise again; otherwise only **Abandon**.
 
-<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/abandon-target.png" alt="Abandon Settlement in Rhegium: if abandoned, Rhegium becomes a rebel town" width="420">
+<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/liberate-target.png" alt="Liberate Settlement in Asculum: if liberated, Asculum goes to the Picentes, who rise again there" width="420"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/abandon-target.png" alt="Abandon Settlement in Rhegium: if abandoned, Rhegium becomes a rebel town" width="420">
 
 ## Wars and diplomacy
 
