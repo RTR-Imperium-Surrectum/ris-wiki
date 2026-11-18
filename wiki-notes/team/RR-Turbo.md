@@ -58,7 +58,7 @@ Each acts only where the game would otherwise crash, freeze or leak memory:
 
 ## Interface
 
-<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/minimap-corner.png" alt="The larger minimap and the top-right corner with season, year and treasury" width="420">
+<img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/minimap-corner.png" alt="The larger minimap and the top-right corner with season, year and treasury" width="420"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/ingame-wiki.jpg" alt="The wiki open inside the game on the campaign map" width="640">
 
 - **Minimap** half as large again, with three extra zoom steps (4×, 8×, 16×).
 - **Top-right corner:** season and year, then the treasury, on one row.
