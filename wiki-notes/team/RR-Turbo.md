@@ -16,10 +16,10 @@ The mode is chosen when the game starts; to switch, close the game and start it 
 
 ## Install
 
-1. Put **RRTurbo.exe** in a folder of its own, e.g. `C:\Games\RRTurbo` (outside OneDrive).
-2. Windows Security may quarantine it, because it loads a file into the game the way some malware does. Add two folders as exclusions: the one holding RRTurbo.exe and `%LOCALAPPDATA%\RRTurbo` (Windows Security › Virus & threat protection › Manage settings › Exclusions › Add an exclusion › Folder).
-3. Make a desktop shortcut to RRTurbo.exe.
-4. In Feral's start window, untick **Pause game on suspend**, or AI turns stop while the game is in the background.
+- Put **RRTurbo.exe** in a folder of its own, e.g. `C:\Games\RRTurbo` (outside OneDrive).
+- Windows Security may quarantine it, because it loads a file into the game the way some malware does. Add two folders as exclusions: the one holding RRTurbo.exe and `%LOCALAPPDATA%\RRTurbo` (Windows Security › Virus & threat protection › Manage settings › Exclusions › Add an exclusion › Folder).
+- Make a desktop shortcut to RRTurbo.exe.
+- In Feral's start window, untick **Pause game on suspend**, or AI turns stop while the game is in the background.
 
 Start the shortcut and press **PLAY**. RR Turbo starts the game through Steam and loads itself once Feral's window is up. Your mod selection stays as chosen.
 
