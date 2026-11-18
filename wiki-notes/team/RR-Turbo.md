@@ -2,17 +2,15 @@
 
 RR Turbo is a launcher for Total War: ROME REMASTERED that speeds the game up, fixes crashes and freezes, gives the campaign AI a stronger game and switches on the RIS rules made for games played with it. Without RR Turbo, RIS plays as a normal mod.
 
-<p align="center"><a href="https://github.com/Tarnholm/Turbo/releases/latest/download/RRTurbo.exe"><b>Download RR Turbo 1.0</b></a> · <a href="https://github.com/Tarnholm/Turbo">Project page</a></p>
+**[Download RR Turbo 1.0](https://github.com/Tarnholm/Turbo/releases/latest/download/RRTurbo.exe)** · [Project page](https://github.com/Tarnholm/Turbo)
 
 RR Turbo is not made by or affiliated with Feral Interactive, SEGA or Creative Assembly. **Never use it in multiplayer battles.**
 
-## Two ways to start
+## Starting the game
 
-| Start | What you get |
-|---|---|
-| **RRTurbo.exe** | Everything: the speed-ups, the fixes, the stronger campaign AI and the [RIS rules for RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo-in-RIS). |
-| **RRTurbo.exe --speed** | The speed-ups only. The campaign plays exactly like plain RIS, just faster. |
-| **Steam, without RR Turbo** | Plain RIS. |
+- **RRTurbo.exe:** everything: the speed-ups, the fixes, the stronger campaign AI and the [RIS rules for RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo-in-RIS).
+- **RRTurbo.exe --speed:** the speed-ups only. The campaign plays exactly like plain RIS, just faster.
+- **Steam, without RR Turbo:** plain RIS.
 
 The mode is chosen when the game starts; to switch, close the game and start it the other way.
 
@@ -64,9 +62,7 @@ Each acts only where the game would otherwise crash, freeze or leak memory:
 
 - **Minimap** half as large again, with three extra zoom steps (4×, 8×, 16×).
 - **Top-right corner:** season and year, then the treasury, on one row.
-- **Seasons:** the season icon follows RIS's four turns a year.
-
-  <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_spring.png" alt="Spring" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_summer.png" alt="Summer" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_autumn.png" alt="Autumn" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_winter.png" alt="Winter" width="40">
+- **Seasons:** the season icon follows RIS's four turns a year: <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_spring.png" alt="Spring" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_summer.png" alt="Summer" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_autumn.png" alt="Autumn" width="40"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/season_winter.png" alt="Winter" width="40">
 - **F1 and the "?" buttons** open this wiki in the game. The "?" buttons show your faction's emblem.
 - **Choose faction:** factions in folding sections by culture, five to a row.
 - **Building browser:** every government chain in the Government section, and one row per branch for chains that branch.
