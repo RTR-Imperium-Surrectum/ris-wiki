@@ -18,7 +18,9 @@ With [RR Turbo](/RTR-Imperium-Surrectum/ris-wiki/wiki/RR-Turbo) started normally
 
 ## Converting buildings
 
-- **Repair & Convert:** a building of another culture that your culture can also build appears in the town's Repair list, now headed *Repair & Convert*. Converted, it becomes yours at the same level, with your culture's look and the culture penalty eased, for a quarter of the level's price and in the level's build time.
+- **Repair & Convert:** a building of another culture that your culture can also build appears in the town's Repair list, now headed *Repair & Convert*. Converted, it becomes yours at the same level, with your culture's look and the culture penalty eased.
+- **Cost:** a quarter (25 %) of what that building level costs to build, paid when you queue it like a repair. A level that costs 2,000 to build converts for 500.
+- **Time:** done at the next end of turn, like a repair, whatever the level's build time.
 - On the town's building cards, a building you can convert shows the emblem of the faction that built it inside two circular arrows, in place of the game's red other-culture triangle.
 
 <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/convert-badges.png" alt="Rhegium's Greek-built buildings, each with the convert badge" width="560"> <img src="https://raw.githubusercontent.com/RTR-Imperium-Surrectum/ris-wiki/main/art/turbo/repair-convert-list.png" alt="Rhegium's Repair and Convert list" width="240">
