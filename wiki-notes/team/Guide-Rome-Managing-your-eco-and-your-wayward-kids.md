@@ -35,23 +35,23 @@ In 270 BC, Rome stands as the dominant power on the Italian peninsula. Having la
 * **Economy:** Weak. Despite a healthy starting treasury of 22,500 denarii, your net income sits at a razor-thin +1,866 denarii per turn before tax adjustments, making early expansion or careful upkeep, tax and building management a top priority.
 * **Diplomacy:** Very middling. Most neighboring factions either dislike you or feel neutral at best. Your protectorates are also looking for any opportunity to break away if they smell weakness or if your diplomatic reputation drops. That said, they provide a massive chunk of extra tribute in those critical starting turns, amounting to nearly 10,000 to 15,000 denarii per turn if you're lucky.
 
-**Expansion & Campaign Pacing:**
+**Expansion & Campaign Pacing:**  
 Sitting at the center of the Mediterranean, Rome has total freedom to expand in any direction, whether pushing north, south, west across the islands, or east into the Balkans. However, this central position also means managing multiple borders and potential flashpoints at once. Overall, the campaign begins as a balancing act where you command a powerful military while walking a financial and diplomatic tightrope. Once you stabilize your income and secure your frontiers, Rome gradually snowballs into an unstoppable empire.
 
-**Campaign Feel:**
+**Campaign Feel:**  
 Methodical and multi-theater. Unlike smaller factions fighting for survival from a handful of settlements, Rome plays like a rising superpower managing constant border friction, delicate protectorate politics, and high-stakes wars on multiple fronts at once.
 
 ## **Getting started**
 
-**Early-Game Approaches:**
+**Early-Game Approaches:**  
 You have a lot of freedom in the opening turns. Rome can play tall while you sort out your economic and diplomatic situation, or you can play wide and conquer your way out of your tight budget and awkward border situation. Regardless of your approach, you can also disband redundant garrisons and navy to save on immediate upkeep.
 
-**Key Targets for Early Expansion:**
+**Key Targets for Early Expansion:**  
 * **Asculum & Ankon (Central/Northern Italy):** Asculum is an Italic settlement held by the independent Picentes. Crushing them eliminates an independent state on your doorstep and opens the path north toward Ankon, a rebel-held Dorian settlement with Greek AoR units.
 * **Rhegium & Messana (The Southern Strait):** Your southern army is poised to strike at Rhegium, a rebel-held Ionian settlement with Greek AoR units. Taking it lets you cross straight into Messana, held by the Ionian (Campanian) Mamertines, giving you a secure foothold in Sicily and a recruitment hub for Campanian units.
 * **Sicily & Beyond:** Once established in Messana, you are in position to push further into Sicily against Syracuse, Acragas, and likely your first major rival: Carthage.
 
-**Managing the Economy & Infrastructure:**
+**Managing the Economy & Infrastructure:**  
 Because Rome starts with a tight net income, choosing where to invest your 22,500 treasury makes a huge difference. Rather than following a strict build order, it helps to prioritize infrastructure based on what each settlement offers:
 * **Farms & Local Resources:** Farms are typically your best overall investment. Beyond increasing population growth and base agricultural income, farms can sometimes unlock extra trade bonuses in settlements with specific local resources, such as fruits, olives, grapes, papyrus, cotton, flax, or dates. Rome itself benefits directly from this right at the start.
 * **Ports & Trade Routes:** With Italy's extensive coastline, ports and paved roads offer reliable, scaling trade income, especially if you maintain trade agreements with nearby neutral states. A high-level port can easily net you 500 extra income per turn, and roads also pay you back with faster troop movement.
@@ -60,8 +60,7 @@ Because Rome starts with a tight net income, choosing where to invest your 22,50
 
 
 
-**Neighboring Factions & Diplomacy:**
-
+**Neighboring Factions & Diplomacy:**  
 Rome sits at a diplomatic crossroads, with its heartland dotted by protectorates and bordered by minor holdouts and major Mediterranean powers. Managing these relationships determines how many fronts you have to fight on at once:
 * **The Socii (Italian Protectorates):** Your scattered Italian allies provide vital buffer zones and up to 10,000 to 15,000 denarii per turn in tribute. You can nurture these alliances to fund your early empire, or cancel your protectorate status with them later for direct control over their cities. Keep your diplomatic reputation intact, as any sign of weakness can tempt them to break away. Also watch out for them signing alliances with independent factions like the Messapians, Apuani, and Sarsinates, as your protectorates will break away if you declare war on any of their allies.
 * **Independent Mainland & Sicilian States:** Factions like the Picentes and Messapians on the mainland, or Syracuse, Acragas, and the Mamertines on Sicily, sit right along your natural expansion routes. Mainland holdouts are easy targets to clean up your borders, while Sicilian cities can serve as brief trading partners before you push deeper into the island.
@@ -76,7 +75,7 @@ Rome begins the campaign with one of the strongest early-game armies in the Medi
 * **Manpower & Area of Recruitment (AoR):** Because core Roman units can only be recruited and retrained in your Italian heartland, you cannot replenish citizen losses on the front lines. Mixing in regional AoR units, such as Greek troops from Italy's east coast or Campanians from Capua, Neapolis, and Messana, lets you keep campaigning while rotating battered Roman units back home to retrain. These local units are also much easier to replenish on the fly if you are fighting in Sicily through Messana (Campanian) or Rhegium (Greek).
 * **The 71-Settlement Reform:** Rome's next major military reform unlocks once you directly hold 71 settlements. Geographically, this equals roughly all of mainland Italy (including your starting protectorates), Sicily, Sardinia, Corsica, and a few settlements of the Po Valley. Whether you choose to push straight for that milestone to upgrade your legions or expand at a slower pace is entirely up to you.
 
-**Roster Strengths, Weaknesses & Combat Tips:**
+**Roster Strengths, Weaknesses & Combat Tips:**  
 While Roman heavy infantry is superb, early Roman cavalry (Equites) is underwhelming to say the least. If you want stronger mounted options early on, consider recruiting regional cavalry from your Italic conquests, such as Messapian or Campanian horsemen. Also, do not be fooled by the raw attack stats on enemy spearmen. While spearmen get a bonus against cavalry, they suffer a hidden -4 penalty against infantry, meaning your Principes will reliably beat spearmen with equal or even higher stats in a straight fight.
 
 
