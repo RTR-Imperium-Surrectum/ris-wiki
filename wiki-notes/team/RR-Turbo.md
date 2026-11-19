@@ -2,6 +2,8 @@
 
 RR Turbo is a launcher for Total War: ROME REMASTERED that speeds the game up, fixes crashes and freezes, gives the campaign AI a stronger game and switches on the RIS rules made for games played with it. Without RR Turbo, RIS plays as a normal mod.
 
+**[Download RR Turbo 1.0](https://github.com/Tarnholm/Turbo/releases/latest/download/RRTurbo.exe)** · [Project page](https://github.com/Tarnholm/Turbo)
+
 RR Turbo is not made by or affiliated with Feral Interactive, SEGA or Creative Assembly. **Never use it in multiplayer battles.**
 
 ## Starting the game
