@@ -294,7 +294,7 @@
       tr = document.createElement("tr");
       heads.forEach(function(h, i){
         var td = document.createElement("td"), c = COLS[h];
-        if (h === "" && i === 0) td.innerHTML = '<a href="' + ROOT + "units/" + slug + EXT + '"><img src="' + ROOT + "cards/" + slug + '.png" alt="" width="35" height="48" onerror="this.remove()"></a>';
+        if (h === "" && i === 0) td.innerHTML = '<a href="' + ROOT + "units/" + slug + EXT + '"><img src="' + ROOT + "cards/" + slug + '.webp" alt="" width="35" height="48" onerror="this.remove()"></a>';
         else if (h === "unit") td.innerHTML = '<a href="' + ROOT + "units/" + slug + EXT + '">' + esc(d ? d.n : slug) + "</a>";
         else if (c && d) { td.innerHTML = fmt(d[c[0]], c[0]); if (typeof d[c[0]] === "number") td.className = "right"; }
         tr.appendChild(td);
@@ -672,7 +672,7 @@ window.RIS_REMASTERED = ["acarnania","achaea","acragas","aetolia","antigonid","a
     var stats = [["Men", d.men], ["Attack", d.attack], ["Charge", d.charge], ["Defence", d.def], ["Morale", d.morale],
       ["Hit points", d.hp], ["Range", d.range], ["Cost", d.cost != null ? num(d.cost) + " dn" : null], ["Upkeep", d.upkeep != null ? num(d.upkeep) + " dn" : null]]
       .filter(function(s){ return s[1] != null && s[1] !== ""; });
-    return '<div class="hov-h"><img src="' + ROOT + 'cards/' + slug + '.png" alt="" width="35" height="48" onerror="this.remove()">'
+    return '<div class="hov-h"><img src="' + ROOT + 'cards/' + slug + '.webp" alt="" width="35" height="48" onerror="this.remove()">'
       + '<div><b>' + esc(d.n) + '</b><small>' + esc([d.cls, d.cat, d.merc ? "mercenary" : ""].filter(Boolean).join(" · ")) + '</small></div></div>'
       + rowsHtml(stats) + (d.abil && d.abil.length ? '<p>' + esc(d.abil.join(" · ")) + "</p>" : "");
   }
